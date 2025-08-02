@@ -1,0 +1,42 @@
+# GitHub Pages configuration
+title: Vue Full-Stack Development Course
+description: A comprehensive Vue.js full-stack development course with 10 modules covering Vue 3, Nuxt 3, authentication, testing, and deployment
+url: https://ge-hall.github.io/vue-fullstack-course
+
+# Jekyll configuration
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files
+exclude:
+  - node_modules/
+  - .git/
+  - .github/
+  - README.md
+  - package*.json
+  - "*.log"
+
+# Include files
+include:
+  - _config.yml
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO
+author: Vue Full-Stack Course
+twitter:
+  username: vue_fullstack
+  card: summary_large_image
+
+social:
+  name: Vue Full-Stack Course
+  links:
+    - https://github.com/ge-hall/vue-fullstack-course
+
+# Google Analytics (add your tracking ID if needed)
+# google_analytics: G-XXXXXXXXXX

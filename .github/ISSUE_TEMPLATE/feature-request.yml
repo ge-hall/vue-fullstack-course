@@ -1,0 +1,97 @@
+name: 💡 Feature Request
+description: Suggest improvements or new content for the course
+title: "[Feature] "
+labels: ["enhancement", "course-improvement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to improve the course? We'd love to hear your suggestions for new modules, topics, or enhancements!
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of enhancement is this?
+      options:
+        - "New module or section"
+        - "Additional topic coverage"
+        - "Better examples or exercises"
+        - "Improved documentation"
+        - "New technology integration"
+        - "Learning resource addition"
+        - "Course structure improvement"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Gap
+      description: What problem does this feature solve? What's currently missing?
+      placeholder: |
+        Describe the learning gap or problem this would address:
+        - What students struggle with
+        - Missing technology or concept
+        - Areas that need more depth
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your idea for addressing this
+      placeholder: |
+        What would you like to see added or changed?
+        - New module content
+        - Additional exercises
+        - Better explanations
+        - Updated examples
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this enhancement?
+      options:
+        - "Nice to have"
+        - "Would improve course significantly"
+        - "Critical gap that needs addressing"
+    validations:
+      required: true
+
+  - type: textarea
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who would benefit from this feature?
+      options:
+        - "Beginner section students"
+        - "Advanced section students"
+        - "All students"
+        - "Instructors/tutors"
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Resources or References
+      description: Any helpful resources, documentation, or examples
+      placeholder: |
+        - Documentation links
+        - Tutorial references
+        - Example repositories
+        - Industry best practices
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Would you be interested in contributing to this feature?
+      options:
+        - label: I would be willing to help create content for this feature
+        - label: I can provide technical expertise or review
+        - label: I'm just suggesting but can't contribute directly

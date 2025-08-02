@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Full-Stack Development Course</title>
+    <meta name="description" content="A comprehensive Vue.js full-stack development course with 10 modules covering Vue 3, Nuxt 3, authentication, testing, and deployment">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Vue Full-Stack Development Course">
+    <meta property="og:description" content="Learn modern Vue.js development from basics to production deployment">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ge-hall.github.io/vue-fullstack-course/">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vue Full-Stack Development Course">
+    <meta name="twitter:description" content="Learn modern Vue.js development from basics to production deployment">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom styles -->
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-gray-900">Vue Full-Stack Course</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/ge-hall/vue-fullstack-course" 
+                       class="text-gray-600 hover:text-gray-900 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg hero-pattern text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    Vue Full-Stack Development Course
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
+                    Master modern Vue.js development from basics to production. 
+                    Build real-world applications with Vue 3, Nuxt 3, and modern tooling.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://github.com/ge-hall/vue-fullstack-course" 
+                       class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        Start Learning
+                    </a>
+                    <a href="#modules" 
+                       class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition-colors">
+                        View Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-3xl font-bold text-indigo-600">10</div>
+                    <div class="text-gray-600">Modules</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-indigo-600">2</div>
+                    <div class="text-gray-600">Sections</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-indigo-600">40+</div>
+                    <div class="text-gray-600">Hours</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-indigo-600">1</div>
+                    <div class="text-gray-600">Real Project</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Overview -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Course Overview</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    A comprehensive journey from Vue basics to production-ready applications
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Beginner Section -->
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <div class="flex items-center mb-4">
+                        <span class="text-2xl mr-3">🎯</span>
+                        <h3 class="text-xl font-semibold text-gray-900">Beginner Section</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Foundation Phase - Essential skills for Vue development
+                    </p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Development environment setup</li>
+                        <li>• Vue 3 application foundation</li>
+                        <li>• Form handling and validation</li>
+                        <li>• Basic Express.js API development</li>
+                    </ul>
+                    <div class="mt-6">
+                        <span class="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                            Modules 1-4
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Advanced Section -->
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <div class="flex items-center mb-4">
+                        <span class="text-2xl mr-3">🚀</span>
+                        <h3 class="text-xl font-semibold text-gray-900">Advanced Section</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">
+                        Production-Ready Development - Modern full-stack patterns
+                    </p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Nuxt 3 migration and SSR/SSG</li>
+                        <li>• Database integration with Drizzle ORM</li>
+                        <li>• Modern authentication with better-auth</li>
+                        <li>• Real-time features and testing</li>
+                        <li>• Production deployment</li>
+                    </ul>
+                    <div class="mt-6">
+                        <span class="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+                            Modules 5-10
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section id="modules" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Course Modules</h2>
+                <p class="text-lg text-gray-600">
+                    Progressive learning path from basics to production
+                </p>
+            </div>
+
+            <!-- Beginner Modules -->
+            <div class="mb-12">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <span class="text-2xl mr-3">🎯</span>
+                    Beginner Section
+                </h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-indigo-50 rounded-lg p-6 border border-indigo-100">
+                        <div class="text-lg font-semibold text-indigo-900 mb-2">Module 1</div>
+                        <div class="text-sm text-indigo-700 font-medium mb-2">Environment Setup</div>
+                        <div class="text-sm text-indigo-600">VS Code, Git, project structure</div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-6 border border-indigo-100">
+                        <div class="text-lg font-semibold text-indigo-900 mb-2">Module 2</div>
+                        <div class="text-sm text-indigo-700 font-medium mb-2">Vue Foundation</div>
+                        <div class="text-sm text-indigo-600">Vue 3, Tailwind CSS, routing</div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-6 border border-indigo-100">
+                        <div class="text-lg font-semibold text-indigo-900 mb-2">Module 3</div>
+                        <div class="text-sm text-indigo-700 font-medium mb-2">Forms & Validation</div>
+                        <div class="text-sm text-indigo-600">VeeValidate, Zod schemas</div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-6 border border-indigo-100">
+                        <div class="text-lg font-semibold text-indigo-900 mb-2">Module 4</div>
+                        <div class="text-sm text-indigo-700 font-medium mb-2">Backend API</div>
+                        <div class="text-sm text-indigo-600">Express.js, authentication</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Modules -->
+            <div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <span class="text-2xl mr-3">🚀</span>
+                    Advanced Section
+                </h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 5</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Nuxt Migration</div>
+                        <div class="text-sm text-purple-600">Nuxt 3, SSR/SSG, auto-imports</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 6</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Database Integration</div>
+                        <div class="text-sm text-purple-600">PostgreSQL, Drizzle ORM</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 7</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Better-Auth</div>
+                        <div class="text-sm text-purple-600">OAuth, sessions, security</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 8</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Advanced Frontend</div>
+                        <div class="text-sm text-purple-600">Real-time, drag-drop, PWA</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 9</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Testing & QA</div>
+                        <div class="text-sm text-purple-600">Unit, E2E, performance tests</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-6 border border-purple-100">
+                        <div class="text-lg font-semibold text-purple-900 mb-2">Module 10</div>
+                        <div class="text-sm text-purple-700 font-medium mb-2">Deployment</div>
+                        <div class="text-sm text-purple-600">Vercel, monitoring, SEO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Tech Stack</h2>
+                <p class="text-lg text-gray-600">
+                    Modern tools and frameworks you'll master
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 text-center">
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <span class="text-sm font-medium">Vue 3</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">🚀</span>
+                    </div>
+                    <span class="text-sm font-medium">Nuxt 3</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">🎨</span>
+                    </div>
+                    <span class="text-sm font-medium">Tailwind CSS</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">🔒</span>
+                    </div>
+                    <span class="text-sm font-medium">Better-Auth</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">🗄️</span>
+                    </div>
+                    <span class="text-sm font-medium">PostgreSQL</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                        <span class="text-2xl">🔧</span>
+                    </div>
+                    <span class="text-sm font-medium">Drizzle ORM</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Getting Started</h2>
+                <p class="text-lg text-gray-600">
+                    Ready to begin your Vue.js journey?
+                </p>
+            </div>
+            
+            <div class="max-w-2xl mx-auto bg-gray-900 rounded-lg p-6">
+                <div class="text-green-400 font-mono text-sm">
+                    <div class="mb-2"># Clone the course repository</div>
+                    <div class="text-white mb-4">git clone https://github.com/ge-hall/vue-fullstack-course.git</div>
+                    
+                    <div class="mb-2"># Navigate to course directory</div>
+                    <div class="text-white mb-4">cd vue-fullstack-course</div>
+                    
+                    <div class="mb-2"># Start with Module 1</div>
+                    <div class="text-white">open modules/MODULE_01_SETUP.md</div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="https://github.com/ge-hall/vue-fullstack-course" 
+                   class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                    Start Learning Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h3 class="text-xl font-semibold mb-4">Vue Full-Stack Development Course</h3>
+                <p class="text-gray-400 mb-6">
+                    From Vue basics to production deployment
+                </p>
+                <div class="flex justify-center space-x-6">
+                    <a href="https://github.com/ge-hall/vue-fullstack-course" 
+                       class="text-gray-400 hover:text-white transition-colors">
+                        GitHub Repository
+                    </a>
+                    <a href="https://github.com/ge-hall/vue-fullstack-course/issues" 
+                       class="text-gray-400 hover:text-white transition-colors">
+                        Ask Questions
+                    </a>
+                    <a href="https://github.com/ge-hall/vue-fullstack-course/discussions" 
+                       class="text-gray-400 hover:text-white transition-colors">
+                        Community
+                    </a>
+                </div>
+                <div class="mt-8 pt-8 border-t border-gray-800">
+                    <p class="text-gray-500 text-sm">
+                        © 2024 Vue Full-Stack Course. Open source educational content.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

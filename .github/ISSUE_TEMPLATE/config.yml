@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Course Documentation
+    url: https://github.com/ge-hall/vue-fullstack-course/blob/main/README.md
+    about: Start here for course overview and getting started guide
+  
+  - name: 🎯 Beginner Section Guide
+    url: https://github.com/ge-hall/vue-fullstack-course/blob/main/modules/MODULE_01_SETUP.md
+    about: Begin with Module 1 if you're new to the course
+  
+  - name: 🚀 Advanced Section Guide  
+    url: https://github.com/ge-hall/vue-fullstack-course/blob/main/ADVANCED_SECTION_INTRO.md
+    about: Prerequisites and introduction to the advanced section
+  
+  - name: 💬 Discussions
+    url: https://github.com/ge-hall/vue-fullstack-course/discussions
+    about: General course discussions, study groups, and community chat

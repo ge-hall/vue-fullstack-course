@@ -1,0 +1,103 @@
+name: 🐛 Bug Report
+description: Report a bug in course materials, instructions, or examples
+title: "[Bug] "
+labels: ["bug", "course-content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Found an issue with the course content? Help us improve it by reporting bugs in instructions, code examples, or documentation.
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      description: Which module contains the bug?
+      options:
+        - "Module 1: Development Environment Setup"
+        - "Module 2: Frontend Foundation with Vue 3" 
+        - "Module 3: Form Handling and Validation"
+        - "Module 4: Backend API Development"
+        - "Module 5: Nuxt Migration & Setup"
+        - "Module 6: Database Integration with Nuxt"
+        - "Module 7: Advanced Authentication with Better-Auth"
+        - "Module 8: Advanced Frontend Features"
+        - "Module 9: Testing & Quality Assurance"
+        - "Module 10: Production Deployment & Optimization"
+        - "Course Structure/README"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bug-type
+    attributes:
+      label: Bug Type
+      description: What type of issue is this?
+      options:
+        - "Code example doesn't work"
+        - "Instructions are unclear/incorrect"
+        - "Broken links or references"
+        - "Outdated dependency/version"
+        - "Missing file or resource"
+        - "Typo or grammatical error"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Describe the bug clearly and concisely
+      placeholder: |
+        What exactly is wrong? Be specific about:
+        - Where in the module the issue occurs
+        - What should happen vs. what actually happens
+        - Impact on learning experience
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can someone else reproduce this bug?
+      placeholder: |
+        1. Go to module X, task Y
+        2. Follow the instructions for...
+        3. Run command...
+        4. See error/issue...
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen according to the course materials?
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Your development environment details
+      placeholder: |
+        - OS: [e.g., macOS 14.1, Windows 11, Ubuntu 22.04]
+        - Node.js version: [e.g., 18.17.0]
+        - Package manager: [e.g., npm 9.6.7, yarn 1.22.19]
+        - Browser: [e.g., Chrome 119, Safari 17]
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        - Screenshots
+        - Error logs
+        - Related issues
+        - Suggested fixes
