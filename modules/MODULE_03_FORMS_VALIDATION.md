@@ -1,0 +1,473 @@
+# Module 3: Form Handling and Validation
+
+**Duration:** 2-3 days  
+**Branch:** `feature/module-3-forms-validation`
+
+## Learning Objectives
+- Master VeeValidate for form state management
+- Implement Zod schemas for type-safe validation
+- Create reusable form components
+- Build user registration and authentication forms
+- Handle form errors and provide excellent UX
+
+## Overview
+Professional applications require robust form handling with client-side validation, error management, and excellent user experience. This module focuses on implementing forms using VeeValidate and Zod for a type-safe, maintainable validation system.
+
+## Tasks
+
+### Task 3.1: VeeValidate Installation and Setup
+**Objective:** Install and configure VeeValidate for Vue 3 form management
+
+**What you need to accomplish:**
+- Install VeeValidate and required dependencies
+- Configure VeeValidate with Vue 3 Composition API
+- Set up global validation rules
+- Create validation utilities
+
+**Documentation to consult:**
+- [VeeValidate Installation Guide](https://vee-validate.logaretm.com/v4/guide/installation)
+- [VeeValidate with Vue 3](https://vee-validate.logaretm.com/v4/guide/composition-api/getting-started)
+- [VeeValidate Configuration](https://vee-validate.logaretm.com/v4/guide/global-validators)
+
+**Installation commands to research:**
+```bash
+npm install vee-validate
+# Additional dependencies you may need
+npm install @vee-validate/rules
+npm install @vee-validate/i18n
+```
+
+**Basic configuration setup:**
+```javascript
+// main.js or plugins/validation.js
+import { defineRule, configure } from 'vee-validate'
+import { required, email, min } from '@vee-validate/rules'
+
+// Define validation rules
+defineRule('required', required)
+defineRule('email', email)
+defineRule('min', min)
+
+// Configure VeeValidate
+configure({
+  generateMessage: () => 'This field is invalid',
+  validateOnBlur: true,
+  validateOnChange: true,
+  validateOnInput: false,
+  validateOnModelUpdate: true,
+})
+```
+
+**Acceptance criteria:**
+- [ ] VeeValidate properly installed
+- [ ] Basic validation rules working
+- [ ] Configuration applied globally
+- [ ] No console errors during setup
+
+---
+
+### Task 3.2: Zod Schema Integration
+**Objective:** Set up Zod for type-safe schema validation and integrate with VeeValidate
+
+**What you need to accomplish:**
+- Install and configure Zod
+- Create validation schemas for forms
+- Integrate Zod with VeeValidate
+- Set up TypeScript types from schemas
+
+**Documentation to consult:**
+- [Zod Documentation](https://zod.dev/)
+- [VeeValidate Zod Integration](https://vee-validate.logaretm.com/v4/guide/composition-api/validation#using-yup-or-zod)
+- [Zod TypeScript Integration](https://zod.dev/?id=type-inference)
+
+**Installation and setup:**
+```bash
+npm install zod
+npm install @vee-validate/zod
+```
+
+**Schema examples to implement:**
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registrationSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and number'),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+})
+
+export const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required')
+})
+
+// Type inference
+export type RegistrationData = z.infer<typeof registrationSchema>
+export type LoginData = z.infer<typeof loginSchema>
+```
+
+**Acceptance criteria:**
+- [ ] Zod schemas created for auth forms
+- [ ] VeeValidate integration working
+- [ ] TypeScript types generated
+- [ ] Complex validation rules implemented
+
+---
+
+### Task 3.3: Reusable Form Components
+**Objective:** Create a set of reusable form components with consistent styling and validation
+
+**What you need to accomplish:**
+- Build base form input components
+- Implement error display patterns
+- Create form layout components
+- Add accessibility features
+
+**Documentation to consult:**
+- [Vue 3 Component Props](https://vuejs.org/guide/components/props.html)
+- [VeeValidate Field Component](https://vee-validate.logaretm.com/v4/api/field)
+- [Web Accessibility Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+
+**Components to create:**
+
+**BaseInput.vue:**
+```vue
+<template>
+  <div class="space-y-1">
+    <label v-if="label" :for="inputId" class="block text-sm font-medium text-gray-700">
+      {{ label }}
+      <span v-if="required" class="text-red-500">*</span>
+    </label>
+    
+    <Field
+      v-slot="{ field, errorMessage }"
+      :name="name"
+      :rules="rules"
+    >
+      <input
+        v-bind="field"
+        :id="inputId"
+        :type="type"
+        :placeholder="placeholder"
+        :class="inputClasses"
+        :aria-describedby="errorMessage ? `${inputId}-error` : undefined"
+        :aria-invalid="!!errorMessage"
+      />
+    </Field>
+    
+    <ErrorMessage :name="name" class="text-sm text-red-600" />
+  </div>
+</template>
+
+<script setup lang="ts">
+// Implement props, computed classes, and accessibility
+</script>
+```
+
+**FormGroup.vue:**
+```vue
+<template>
+  <div class="space-y-6">
+    <slot />
+  </div>
+</template>
+```
+
+**SubmitButton.vue:**
+```vue
+<template>
+  <button
+    :type="type"
+    :disabled="disabled || loading"
+    :class="buttonClasses"
+  >
+    <span v-if="loading" class="animate-spin mr-2">⟳</span>
+    <slot />
+  </button>
+</template>
+```
+
+**Acceptance criteria:**
+- [ ] Reusable form components created
+- [ ] Consistent styling across components
+- [ ] Proper error display
+- [ ] Accessibility features implemented
+- [ ] Components well-documented
+
+---
+
+### Task 3.4: User Registration Form
+**Objective:** Build a complete user registration form with validation and error handling
+
+**What you need to accomplish:**
+- Create registration form component
+- Implement real-time validation
+- Add password strength indicator
+- Handle form submission states
+
+**Documentation to consult:**
+- [VeeValidate Form Component](https://vee-validate.logaretm.com/v4/api/form)
+- [Vue 3 Composables](https://vuejs.org/guide/reusability/composables.html)
+- [Form UX Best Practices](https://www.smashingmagazine.com/2018/08/best-practices-for-mobile-form-design/)
+
+**Form structure to implement:**
+```vue
+<template>
+  <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2>
+    
+    <Form
+      :validation-schema="registrationSchema"
+      @submit="onSubmit"
+    >
+      <FormGroup>
+        <div class="grid grid-cols-2 gap-4">
+          <BaseInput
+            name="firstName"
+            label="First Name"
+            required
+          />
+          <BaseInput
+            name="lastName"
+            label="Last Name"
+            required
+          />
+        </div>
+        
+        <BaseInput
+          name="email"
+          type="email"
+          label="Email Address"
+          required
+        />
+        
+        <BaseInput
+          name="password"
+          type="password"
+          label="Password"
+          required
+        />
+        
+        <PasswordStrengthIndicator name="password" />
+        
+        <BaseInput
+          name="confirmPassword"
+          type="password"
+          label="Confirm Password"
+          required
+        />
+        
+        <SubmitButton
+          :loading="isSubmitting"
+          class="w-full"
+        >
+          Create Account
+        </SubmitButton>
+      </FormGroup>
+    </Form>
+    
+    <div v-if="submitError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+      {{ submitError }}
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Implement form submission logic
+// Handle loading states
+// Manage error states
+// Add success handling
+</script>
+```
+
+**Additional features to implement:**
+- Password strength indicator
+- Email availability checking (debounced)
+- Form field focus management
+- Success/error messaging
+
+**Acceptance criteria:**
+- [ ] Registration form renders correctly
+- [ ] All validation rules work
+- [ ] Form submission handled properly
+- [ ] Loading and error states work
+- [ ] Good user experience
+
+---
+
+### Task 3.5: Login Form and Form Utilities
+**Objective:** Create login form and shared form utilities for better code reuse
+
+**What you need to accomplish:**
+- Build login form component
+- Create form submission composables
+- Implement "Remember me" functionality
+- Add forgot password link handling
+
+**Documentation to consult:**
+- [Vue 3 Composables Pattern](https://vuejs.org/guide/reusability/composables.html)
+- [Local Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
+- [Form Accessibility](https://webaim.org/techniques/forms/)
+
+**Login form implementation:**
+```vue
+<template>
+  <div class="max-w-sm mx-auto bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">Sign In</h2>
+    
+    <Form
+      :validation-schema="loginSchema"
+      @submit="onSubmit"
+    >
+      <FormGroup>
+        <BaseInput
+          name="email"
+          type="email"
+          label="Email Address"
+          required
+          autocomplete="email"
+        />
+        
+        <BaseInput
+          name="password"
+          type="password"
+          label="Password"
+          required
+          autocomplete="current-password"
+        />
+        
+        <div class="flex items-center justify-between">
+          <BaseCheckbox
+            name="rememberMe"
+            label="Remember me"
+          />
+          
+          <router-link
+            to="/forgot-password"
+            class="text-sm text-blue-600 hover:underline"
+          >
+            Forgot password?
+          </router-link>
+        </div>
+        
+        <SubmitButton
+          :loading="isSubmitting"
+          class="w-full"
+        >
+          Sign In
+        </SubmitButton>
+      </FormGroup>
+    </Form>
+  </div>
+</template>
+```
+
+**Form composables to create:**
+```typescript
+// composables/useFormSubmission.ts
+export function useFormSubmission() {
+  const isSubmitting = ref(false)
+  const submitError = ref('')
+  
+  const handleSubmit = async (submitFn: Function) => {
+    isSubmitting.value = true
+    submitError.value = ''
+    
+    try {
+      await submitFn()
+    } catch (error) {
+      submitError.value = error.message
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+  
+  return {
+    isSubmitting,
+    submitError,
+    handleSubmit
+  }
+}
+```
+
+**Acceptance criteria:**
+- [ ] Login form functional and validated
+- [ ] Form utilities created and reusable
+- [ ] Remember me functionality works
+- [ ] Proper error handling implemented
+- [ ] Accessibility features included
+
+## Challenge Extensions
+
+### Advanced Validation Features
+- Implement async validation (email uniqueness)
+- Add debounced validation for better UX
+- Create custom validation rules
+- Implement field-level validation timing
+
+### Enhanced UX Features
+- Add form auto-save functionality
+- Implement smart form field suggestions
+- Create multi-step form wizard
+- Add form progress indicators
+
+### Security Enhancements
+- Implement CSRF protection
+- Add rate limiting for form submissions
+- Create password breach checking
+- Implement secure password requirements
+
+### Accessibility Improvements
+- Add comprehensive ARIA support
+- Implement keyboard navigation
+- Create screen reader optimizations
+- Add high contrast mode support
+
+## Troubleshooting Common Issues
+
+### VeeValidate Not Validating
+- Check field names match schema keys
+- Verify validation schema is properly imported
+- Ensure Field components are used correctly
+- Check for conflicting validation rules
+
+### Zod Schema Errors
+- Verify schema syntax is correct
+- Check for TypeScript type mismatches
+- Ensure proper error message configuration
+- Test schema independently
+
+### Form Submission Issues
+- Check network requests in dev tools
+- Verify form data structure
+- Ensure proper error handling
+- Test loading state management
+
+### Styling Issues
+- Verify Tailwind classes are applied
+- Check component prop passing
+- Ensure responsive design works
+- Test different input states
+
+## Module Completion Checklist
+
+Before moving to Module 4, ensure:
+- [ ] VeeValidate is properly configured
+- [ ] Zod schemas work for all forms
+- [ ] Reusable components function correctly
+- [ ] Registration form validates properly
+- [ ] Login form handles all cases
+- [ ] Error handling provides good UX
+- [ ] Forms are accessible and responsive
+- [ ] Code is well-documented and tested
+
+## Next Module Preview
+Module 4 will focus on building the Express.js backend API that will handle form submissions, user authentication, and data management. You'll create RESTful endpoints that integrate with your frontend forms.
