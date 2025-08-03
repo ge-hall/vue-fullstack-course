@@ -1,4 +1,12 @@
+---
+title: "Module 1: Development Environment Setup"
+description: "Set up your development environment with VS Code, Git, Node.js, and project structure"
+layout: default
+---
+
 # Module 1: Development Environment Setup
+
+[← Back to Course](../) | [📚 Next: Module 2](MODULE_02_VUE_FOUNDATION.html)
 
 **Duration:** 1-2 days  
 **Branch:** `feature/module-1-setup`

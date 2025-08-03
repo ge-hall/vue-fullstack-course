@@ -1,4 +1,12 @@
+---
+title: "Modules 4-10: Dashboard & Advanced Features Mockups"
+description: "Comprehensive designs for advanced features, dashboard, and collaboration tools"
+layout: default
+---
+
 # Modules 4-10: Dashboard & Advanced Features Mockups
+
+[← Back to Course](../) | [📚 Modules 4-10](../modules/)
 
 ## Application Context: Full TaskFlow Platform
 

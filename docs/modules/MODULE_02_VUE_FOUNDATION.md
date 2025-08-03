@@ -6,7 +6,7 @@ layout: default
 
 # Module 2: Frontend Foundation with Vue 3
 
-[← Back to Course](../) | [📐 View Mockups](../mockups/MODULE_02_MOCKUPS.html)
+[← Back to Course](../) | [📚 Previous: Module 1](MODULE_01_SETUP.html) | [📚 Next: Module 3](MODULE_03_FORMS_VALIDATION.html) | [📐 View Mockups](../mockups/MODULE_02_MOCKUPS.html)
 
 **Duration:** 3-4 days  
 **Branch:** `feature/module-2-vue-foundation`

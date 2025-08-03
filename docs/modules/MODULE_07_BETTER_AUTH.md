@@ -1,4 +1,12 @@
+---
+title: "Module 7: Advanced Authentication with Better-Auth"
+description: "Implement modern authentication with OAuth and session management"
+layout: default
+---
+
 # Module 7: Advanced Authentication with Better-Auth
+
+[← Back to Course](../) | [📚 Previous: Module 6](MODULE_06_DATABASE_INTEGRATION.html) | [📚 Next: Module 8](MODULE_08_ADVANCED_FRONTEND.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 4-5 days  
 **Branch:** `feature/module-7-better-auth`  

@@ -1,4 +1,12 @@
-# Module 6: Database Integration with Nuxt
+---
+title: "Module 6: Database Integration"
+description: "Integrate PostgreSQL database with Drizzle ORM"
+layout: default
+---
+
+# Module 6: Database Integration
+
+[← Back to Course](../) | [📚 Previous: Module 5](MODULE_05_NUXT_MIGRATION.html) | [📚 Next: Module 7](MODULE_07_BETTER_AUTH.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html) with Nuxt
 
 **Duration:** 3-4 days  
 **Branch:** `feature/module-6-database-integration`  

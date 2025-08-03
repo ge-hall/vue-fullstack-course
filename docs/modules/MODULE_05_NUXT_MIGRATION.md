@@ -1,4 +1,12 @@
+---
+title: "Module 5: Nuxt Migration & Setup"
+description: "Migrate Vue app to Nuxt 3 with SSR/SSG capabilities"
+layout: default
+---
+
 # Module 5: Nuxt Migration & Setup
+
+[← Back to Course](../) | [📚 Previous: Module 4](MODULE_04_BACKEND_API.html) | [📚 Next: Module 6](MODULE_06_DATABASE_INTEGRATION.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 4-5 days  
 **Branch:** `feature/module-5-nuxt-migration`  

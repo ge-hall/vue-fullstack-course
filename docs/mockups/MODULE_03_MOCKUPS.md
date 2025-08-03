@@ -1,4 +1,12 @@
+---
+title: "Module 3: Forms & Validation Mockups"
+description: "Visual designs for form layouts, validation states, and user flows"
+layout: default
+---
+
 # Module 3: Forms & Validation Mockups
+
+[← Back to Course](../) | [📚 View Module 3](../modules/MODULE_03_FORMS_VALIDATION.html)
 
 ## Application Context: TaskFlow User Authentication
 

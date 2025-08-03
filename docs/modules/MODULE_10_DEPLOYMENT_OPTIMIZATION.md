@@ -1,4 +1,12 @@
+---
+title: "Module 10: Production Deployment & Optimization"
+description: "Deploy to Vercel with monitoring, SEO, and performance optimization"
+layout: default
+---
+
 # Module 10: Production Deployment & Optimization
+
+[← Back to Course](../) | [📚 Previous: Module 9](MODULE_09_TESTING_QA.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 3-4 days  
 **Branch:** `feature/module-10-deployment`  

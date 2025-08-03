@@ -1,4 +1,12 @@
+---
+title: "Module 9: Testing & Quality Assurance"
+description: "Comprehensive testing with unit, integration, and E2E tests"
+layout: default
+---
+
 # Module 9: Testing & Quality Assurance
+
+[← Back to Course](../) | [📚 Previous: Module 8](MODULE_08_ADVANCED_FRONTEND.html) | [📚 Next: Module 10](MODULE_10_DEPLOYMENT_OPTIMIZATION.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 3-4 days  
 **Branch:** `feature/module-9-testing-qa`  
