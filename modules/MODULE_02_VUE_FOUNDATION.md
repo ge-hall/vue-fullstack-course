@@ -3,6 +3,28 @@
 **Duration:** 3-4 days  
 **Branch:** `feature/module-2-vue-foundation`
 
+## Application Context: TaskFlow Platform Foundation
+
+### What You're Building
+You're creating the foundational structure for **TaskFlow** - a collaborative task management platform similar to Trello or Asana. This module establishes the visual framework and navigation system that will support user authentication, project management, and team collaboration features in later modules.
+
+### TaskFlow Features You're Building This Module
+- **Landing page**: Modern, professional homepage with clear value proposition
+- **Responsive navigation**: Header with logo, search, and user controls
+- **Application layout**: Sidebar navigation + main content area structure  
+- **Mobile-first design**: Hamburger menu and responsive breakpoints
+- **Route structure**: Foundation for authentication and dashboard pages
+
+### User Stories for This Module
+- **As a visitor**, I want to see an attractive landing page so that I understand what TaskFlow offers
+- **As a user**, I want intuitive navigation so that I can easily move between different areas of the application
+- **As a mobile user**, I want a responsive interface so that I can use TaskFlow on any device
+
+### UI Mockups Reference
+📋 **See detailed visual mockups**: [Module 2 UI Mockups](../mockups/MODULE_02_MOCKUPS.md)
+
+The mockups show the complete landing page design, responsive navigation patterns, and mobile menu implementations you'll be building.
+
 ## Learning Objectives
 - Initialize a modern Vue 3 application with Vite
 - Configure Tailwind CSS for utility-first styling
@@ -11,7 +33,7 @@
 - Implement responsive layouts and navigation
 
 ## Overview
-This module establishes the frontend foundation using Vue 3's Composition API, modern build tooling with Vite, and Tailwind CSS for rapid UI development. You'll create the basic structure that will support all future features.
+This module establishes the frontend foundation using Vue 3's Composition API, modern build tooling with Vite, and Tailwind CSS for rapid UI development. You'll create the visual structure that will house TaskFlow's project management features.
 
 ## Tasks
 

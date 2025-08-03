@@ -3,6 +3,29 @@
 **Duration:** 2-3 days  
 **Branch:** `feature/module-3-forms-validation`
 
+## Application Context: TaskFlow User Authentication
+
+### What You're Building
+You're building the user authentication system for **TaskFlow** - the foundation that allows users to create accounts and securely access their projects and tasks. This module creates the registration and login experience that every TaskFlow user will encounter.
+
+### TaskFlow Features You're Building This Module
+- **User registration**: Complete signup flow with validation and password strength
+- **User login**: Secure authentication with "Remember me" functionality
+- **Form validation**: Real-time feedback with professional error handling
+- **Social authentication**: OAuth integration prep (Google, GitHub buttons)
+- **Responsive forms**: Mobile-optimized authentication experience
+
+### User Stories for This Module
+- **As a new user**, I want to register for TaskFlow so that I can create and manage my projects
+- **As a returning user**, I want to log into TaskFlow so that I can access my existing projects and tasks
+- **As a security-conscious user**, I want strong password requirements so that my account is protected
+- **As a mobile user**, I want forms that work seamlessly on my device
+
+### UI Mockups Reference
+📋 **See detailed visual mockups**: [Module 3 UI Mockups](../mockups/MODULE_03_MOCKUPS.md)
+
+The mockups show complete registration and login forms with validation states, password strength indicators, error handling, and responsive mobile layouts.
+
 ## Learning Objectives
 - Master VeeValidate for form state management
 - Implement Zod schemas for type-safe validation
@@ -11,7 +34,7 @@
 - Handle form errors and provide excellent UX
 
 ## Overview
-Professional applications require robust form handling with client-side validation, error management, and excellent user experience. This module focuses on implementing forms using VeeValidate and Zod for a type-safe, maintainable validation system.
+Professional applications require robust form handling with client-side validation, error management, and excellent user experience. This module implements the authentication forms that will be the gateway to TaskFlow's project management features.
 
 ## Tasks
 
