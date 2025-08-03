@@ -218,6 +218,22 @@
             background-color: #1e293b;
             color: #e2e8f0;
             border: none;
+            white-space: pre !important;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+            tab-size: 8;
+            -moz-tab-size: 8;
+        }
+        
+        /* Force preserve whitespace and indentation */
+        .markdown-body pre,
+        .markdown-body pre code {
+            white-space: pre !important;
+            overflow-x: auto !important;
+        }
+        
+        /* Override any theme defaults */
+        .markdown-body * {
+            box-sizing: border-box;
         }
         
         /* Navigation styles */

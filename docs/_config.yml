@@ -6,7 +6,8 @@ url: https://ge-hall.github.io/vue-fullstack-course
 # Jekyll configuration
 markdown: kramdown
 highlighter: rouge
-theme: minima
+# Disable theme to prevent CSS conflicts
+# theme: minima
 
 # Kramdown configuration for better markdown processing
 kramdown:
