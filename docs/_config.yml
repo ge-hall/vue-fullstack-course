@@ -20,12 +20,36 @@ exclude:
 # Include files
 include:
   - _config.yml
+  - modules/
+  - mockups/
 
 # Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+
+# Collections for better organization
+collections:
+  modules:
+    output: true
+    permalink: /:collection/:name/
+  mockups:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults for collections
+defaults:
+  - scope:
+      path: ""
+      type: "modules"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "mockups"
+    values:
+      layout: "default"
 
 # SEO
 author: Vue Full-Stack Course

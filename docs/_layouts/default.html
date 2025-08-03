@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title | default: site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .markdown-body {
+            max-width: 4xl;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .markdown-body h1 { @apply text-3xl font-bold text-gray-900 mb-6; }
+        .markdown-body h2 { @apply text-2xl font-semibold text-gray-800 mb-4 mt-8; }
+        .markdown-body h3 { @apply text-xl font-semibold text-gray-700 mb-3 mt-6; }
+        .markdown-body p { @apply mb-4 text-gray-600 leading-relaxed; }
+        .markdown-body ul { @apply mb-4 pl-6; }
+        .markdown-body li { @apply mb-2 text-gray-600; }
+        .markdown-body pre { @apply bg-gray-100 p-4 rounded-lg mb-4 overflow-x-auto; }
+        .markdown-body code { @apply bg-gray-100 px-2 py-1 rounded text-sm; }
+        .markdown-body blockquote { @apply border-l-4 border-blue-500 pl-4 italic text-gray-600 mb-4; }
+        .nav-link { @apply text-blue-600 hover:text-blue-800 transition-colors; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ site.url }}" class="text-xl font-bold text-gray-900">Vue Full-Stack Course</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ site.url }}" class="nav-link">← Back to Course</a>
+                    <a href="https://github.com/ge-hall/vue-fullstack-course" class="nav-link">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="markdown-body">
+        {{ content }}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">
+                <a href="{{ site.url }}" class="text-white hover:text-gray-300">Vue Full-Stack Course</a> 
+                | 
+                <a href="https://github.com/ge-hall/vue-fullstack-course" class="text-white hover:text-gray-300">GitHub</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
