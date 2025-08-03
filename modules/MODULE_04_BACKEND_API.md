@@ -3,6 +3,38 @@
 **Duration:** 4-5 days  
 **Branch:** `feature/module-4-backend-api`
 
+## Application Context: TaskFlow Backend Foundation
+
+### What You're Building
+You're creating the backend API that powers **TaskFlow** - the server-side foundation that will handle user authentication, data storage, and all business logic. This module builds the API endpoints that your authentication forms will communicate with and establishes patterns for future project and task management features.
+
+### TaskFlow API Features You're Building This Module
+- **Authentication endpoints**: Registration, login, logout, and token management
+- **User management**: Profile updates, account settings, and user data
+- **API architecture**: RESTful design patterns and consistent response formats
+- **Security foundation**: JWT tokens, password hashing, and rate limiting
+- **Error handling**: Professional error responses and logging system
+
+### User Stories for This Module
+- **As a user**, I want my registration data securely stored so that I can access my account
+- **As a user**, I want fast and reliable login so that I can quickly access TaskFlow
+- **As a developer**, I want consistent API patterns so that adding features is predictable
+- **As an admin**, I want proper security measures so that user data is protected
+
+### API Endpoints You're Building
+```
+POST /api/v1/auth/register    - User registration
+POST /api/v1/auth/login       - User authentication  
+POST /api/v1/auth/logout      - Session termination
+GET  /api/v1/users/profile    - User profile data
+PUT  /api/v1/users/profile    - Update profile
+```
+
+### UI Integration Reference
+📋 **See how APIs connect to UI**: [Module 4+ UI Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.md)
+
+The mockups show user profile pages, dashboard loading states, and error handling that your APIs will power.
+
 ## Learning Objectives
 - Build RESTful APIs with Express.js and TypeScript
 - Implement proper middleware architecture
@@ -11,7 +43,7 @@
 - Implement request validation and security measures
 
 ## Overview
-This module focuses on creating a professional backend API using Express.js. You'll build endpoints that support your frontend forms, implement proper error handling, and establish patterns that will scale as your application grows.
+This module creates the server-side foundation for TaskFlow using Express.js. You'll build endpoints that support user authentication and establish patterns that will scale to handle projects, tasks, and team collaboration.
 
 ## Tasks
 
