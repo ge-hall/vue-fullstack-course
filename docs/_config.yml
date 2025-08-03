@@ -8,6 +8,18 @@ markdown: kramdown
 highlighter: rouge
 theme: minima
 
+# Kramdown configuration for better markdown processing
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    default_lang: html
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
 # Exclude files
 exclude:
   - node_modules/
