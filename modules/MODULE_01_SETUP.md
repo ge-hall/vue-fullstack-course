@@ -563,88 +563,6 @@ Before beginning this task, ensure you have:
 3. Verify .env.example contains all necessary variables with clear descriptions
 4. Check that a new developer could set up their environment using your documentation
 
----
-
-### Task 1.5: Development Scripts Setup
-**Objective:** Create npm scripts for common development tasks
-
-**What you need to accomplish:**
-- Set up development server scripts
-- Configure build scripts
-- Add linting and formatting scripts
-- Create database scripts (for later modules)
-
-**Documentation to consult:**
-- [npm Scripts Documentation](https://docs.npmjs.com/cli/v9/using-npm/scripts)
-- [Package.json Scripts](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#scripts)
-
-**Example scripts structure:**
-```json
-{
-  "scripts": {
-    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "dev:client": "cd client && npm run dev",
-    "dev:server": "cd server && npm run dev",
-    "build": "npm run build:client && npm run build:server",
-    "lint": "eslint . --ext .vue,.js,.ts",
-    "format": "prettier --write .",
-    "db:migrate": "cd server && npm run db:migrate",
-    "db:seed": "cd server && npm run db:seed"
-  }
-}
-```
-
-**Acceptance criteria:**
-- [ ] All development scripts work
-- [ ] Build scripts configured
-- [ ] Linting and formatting scripts functional
-- [ ] Scripts documented in README
-
-## Implementation Guidance
-
-### Getting Started
-Before beginning this task, ensure you have:
-- [ ] Package.json file created in project root
-- [ ] Understanding of npm scripts and how they work
-- [ ] Knowledge of tools like concurrently for running multiple scripts
-
-### Step-by-Step Implementation Approach
-
-**1. Script Planning and Dependencies**
-- Research common development workflow patterns
-- Install necessary packages like `concurrently` for running multiple scripts
-- Plan scripts for development, building, testing, and maintenance tasks
-- Consider cross-platform compatibility (Windows, Mac, Linux)
-
-**2. Development Scripts Implementation**
-- Create scripts that start both frontend and backend simultaneously
-- Set up individual scripts for running services separately
-- Configure hot reloading and auto-restart functionality
-- Test that all development workflows function smoothly
-
-**3. Build and Production Scripts**
-- Create scripts for building frontend and backend for production
-- Set up linting and formatting scripts for code quality
-- Add scripts for database operations (migrations, seeding)
-- Configure any necessary pre-build or post-build steps
-
-**4. Documentation and Team Workflow**
-- Document each script's purpose and usage in README
-- Create clear instructions for common development tasks
-- Establish coding standards and enforce them through scripts
-- Plan for CI/CD integration in future modules
-
-**Key Decision Points:**
-- **Script naming:** Use consistent, descriptive names that are intuitive
-- **Parallel vs. sequential:** Decide when to run scripts simultaneously vs. in sequence
-- **Cross-platform support:** Ensure scripts work on different operating systems
-
-**Verification Steps:**
-1. Test each script individually to ensure they work correctly
-2. Verify concurrent scripts can run together without conflicts
-3. Confirm new team members can understand and use scripts from README
-4. Check that scripts fail gracefully with helpful error messages
-
 ## Challenge Extensions
 
 ### Advanced Git Configuration
@@ -684,8 +602,8 @@ Before beginning this task, ensure you have:
 Before moving to Module 2, ensure:
 - [ ] VS Code is fully configured and working
 - [ ] Git repository is set up with proper structure
+- [ ] Monorepo structure created with client and server folders
 - [ ] Environment variables are working
-- [ ] All npm scripts execute without errors
 - [ ] Documentation is complete and up-to-date
 - [ ] Code has been committed and pushed to repository
 
