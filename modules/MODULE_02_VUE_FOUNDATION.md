@@ -60,10 +60,10 @@ yarn create vue .
 ```
 
 **Configuration considerations:**
-- Choose TypeScript support (recommended)
-- Include Vue Router
-- Include ESLint for code quality
-- Consider PWA features for future enhancement
+- Choose No for TypeScript support (we'll introduce TypeScript in later modules)
+- Include Vue Router (Yes - essential for SPA navigation)
+- Include ESLint for code quality (Yes)
+- Skip PWA features for now (No)
 
 **Acceptance criteria:**
 - [ ] Vue 3 project successfully created
@@ -76,8 +76,8 @@ yarn create vue .
 
 ### Getting Started
 Before beginning this task, ensure you have:
-- [ ] Node.js 16+ installed (`node --version`)
-- [ ] Module 1 development environment setup completed
+- [ ] Node.js LTS version (20.x or later) installed (`node --version`)
+- [ ] Module 1 development environment setup completed with npm scripts configured
 - [ ] Understanding of Vue 3 vs Vue 2 differences
 - [ ] Basic familiarity with modern JavaScript (ES6+)
 
@@ -86,38 +86,136 @@ Before beginning this task, ensure you have:
 **1. Project Initialization Planning**
 - Navigate to your `client/` directory (or create it if needed)
 - Research the `npm create vue@latest` command options
-- Plan which features to include during scaffold (TypeScript, Router, ESLint)
-- Consider how this integrates with your existing project structure
+- Plan which features to include during scaffold:
+  - TypeScript: No (we'll add it in advanced modules)
+  - Vue Router: Yes (required for navigation)
+  - ESLint: Yes (for code quality)
+  - Prettier: Yes (for consistent formatting)
+  - Vitest: No (we'll add testing later)
+- Consider how this integrates with your existing monorepo structure from Module 1
 
 **2. Vue Project Creation Process**
-- Run the Vue creation command in your client directory
-- Choose appropriate options for a professional application
-- Review generated folder structure and understand each directory's purpose
-- Install dependencies and verify the initial setup works
+- Run the Vue creation command in your client directory:
+  ```bash
+  cd client/
+  npm create vue@latest .
+  ```
+- When prompted, select:
+  - Project name: `taskflow-client`
+  - TypeScript: No
+  - JSX Support: No
+  - Vue Router: Yes
+  - Pinia: No (we'll use simple state management for now)
+  - Vitest: No
+  - End-to-End Testing: No
+  - ESLint: Yes
+  - Prettier: Yes
+- Install dependencies: `npm install`
+- Review generated folder structure:
+  ```
+  client/
+  ├── public/          # Static assets
+  ├── src/
+  │   ├── assets/      # Images, fonts, etc.
+  │   ├── components/  # Vue components
+  │   ├── router/      # Vue Router config
+  │   ├── views/       # Page components
+  │   ├── App.vue      # Root component
+  │   └── main.js      # Application entry point
+  ├── index.html       # HTML template
+  ├── vite.config.js   # Vite configuration
+  └── package.json     # Dependencies and scripts
+  ```
 
 **3. Development Server Configuration**
-- Start the development server and verify hot reload works
-- Test that changes to Vue files reflect immediately in browser
-- Configure any necessary proxy settings for backend integration
-- Verify build process works for production
+- Start the development server:
+  ```bash
+  npm run dev
+  ```
+- The server will start on `http://localhost:5173` (Vite's default port)
+- **Understanding Hot Module Replacement (HMR):**
+  - HMR allows you to see changes instantly without losing application state
+  - When you edit a `.vue` file, only that component reloads
+  - CSS changes apply immediately without page refresh
+  - Try editing `src/App.vue` and watch the browser update automatically
+- Configure Vite for backend integration in `vite.config.js`:
+  ```javascript
+  export default defineConfig({
+    plugins: [vue()],
+    server: {
+      port: 3000,  // Change from default 5173 to 3000
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',  // Your Express backend from Module 1
+          changeOrigin: true,
+          secure: false
+        }
+      }
+    }
+  })
+  ```
+- Test the build process:
+  ```bash
+  npm run build
+  npm run preview  # Preview production build locally
+  ```
 
-**4. Project Integration**
-- Update your root package.json scripts to include client commands
-- Ensure the Vue project works with your existing Git repository
-- Verify environment variables can be accessed from Vue components
-- Test that the project structure supports team development
+**4. Project Integration with Module 1 Setup**
+- Update your root `package.json` scripts to manage both server and client:
+  ```json
+  {
+    "scripts": {
+      "dev": "npm run dev:server & npm run dev:client",
+      "dev:server": "cd server && npm run dev",
+      "dev:client": "cd client && npm run dev",
+      "build": "npm run build:client && npm run build:server",
+      "build:client": "cd client && npm run build",
+      "build:server": "cd server && npm run build",
+      "start": "cd server && npm start"
+    }
+  }
+  ```
+- Set up environment variables for the Vue app:
+  1. Create `client/.env.development`:
+     ```
+     VITE_API_URL=http://localhost:5000/api
+     VITE_APP_NAME=TaskFlow
+     ```
+  2. Access in Vue components:
+     ```javascript
+     const apiUrl = import.meta.env.VITE_API_URL
+     ```
+- Ensure Git integration:
+  - The Vue project should already be part of your monorepo
+  - Check that `client/node_modules` is in `.gitignore`
+  - Verify `client/dist` (build output) is also ignored
+- Test concurrent development:
+  ```bash
+  # From root directory
+  npm run dev  # Should start both server and client
+  ```
 
 **Key Decision Points:**
-- **TypeScript adoption:** Recommended for larger projects and better tooling
-- **Router inclusion:** Essential for SPA navigation (choose yes)
-- **Testing framework:** Consider your team's testing strategy
-- **PWA features:** Can be added later if not immediately needed
+- **TypeScript adoption:** Skip for now to focus on Vue fundamentals - we'll add it in Module 7
+- **Router inclusion:** Essential for SPA navigation (always choose Yes)
+- **State management (Pinia):** Not needed yet - we'll use component state for now
+- **Testing framework:** Skip for initial setup - we'll add testing in Module 6
+- **Code quality tools:** Always include ESLint and Prettier for consistent code
 
 **Verification Steps:**
-1. Confirm `npm run dev` starts development server successfully
-2. Test that editing a Vue component triggers hot reload
-3. Verify build command (`npm run build`) creates production-ready files
-4. Check that the project integrates with your existing development workflow
+1. Confirm `npm run dev` starts development server on port 3000
+2. Test Hot Module Replacement:
+   - Edit text in `src/App.vue` - should update instantly
+   - Change styles - should apply without refresh
+   - Add a new component - should hot reload
+3. Verify build process:
+   - Run `npm run build` - should create `dist/` folder
+   - Check `dist/` contains optimized HTML, JS, and CSS files
+   - Run `npm run preview` to test production build
+4. Test monorepo integration:
+   - From root: `npm run dev` starts both server and client
+   - API proxy works: `fetch('/api/health')` reaches your Express server
+   - Environment variables load correctly
 
 ---
 
@@ -391,7 +489,7 @@ Before beginning this task, ensure you have:
 **2. Base Component Development**
 - Create foundational components that will be reused throughout the app
 - Focus on components like buttons, inputs, modals, and cards
-- Use TypeScript interfaces or PropType definitions for prop validation
+- Use prop validation with Vue's built-in prop system
 - Implement proper event emission patterns for component communication
 
 **3. Layout Component Structure**
@@ -410,7 +508,7 @@ Before beginning this task, ensure you have:
 - **Component granularity:** Balance between reusability and simplicity
 - **Prop vs. slot usage:** Decide when to use props vs. slots for component API
 - **State management:** Plan for component-level vs. global state
-- **TypeScript integration:** Consider type safety for component interfaces
+- **Prop validation:** Use Vue's prop validation features for component safety
 
 **Verification Steps:**
 1. Test that base components work with different prop combinations
