@@ -350,17 +350,65 @@ git remote rename origin upstream
 - [Vue.js Project Structure](https://vuejs.org/guide/scaling-up/sfc.html)
 - [Node.js Project Structure Best Practices](https://nodejs.org/en/docs/guides/)
 
-**Suggested structure:**
+**Understanding Monorepos:**
+
+A monorepo (monolithic repository) is a software development approach where multiple projects are stored in a single repository. In our case, we'll keep the Vue frontend and Express backend in the same repository but as separate npm projects.
+
+**Benefits of a monorepo approach:**
+- **Shared code**: Easy to share utilities, types, and configurations
+- **Atomic commits**: Changes across frontend and backend can be committed together
+- **Simplified tooling**: One set of linting rules, Git hooks, and CI/CD pipelines
+- **Easier refactoring**: Rename or move code across projects with confidence
+- **Single source of truth**: All code in one place makes it easier to understand the full system
+
+**How it works:**
+- Each folder (`client/` and `server/`) will have its own `package.json`
+- They function as independent npm projects with their own dependencies
+- The root `package.json` orchestrates running both projects together
+
+**Suggested monorepo structure:**
 ```
-task-manager/
-├── client/          # Vue frontend
-├── server/          # Express backend
-├── shared/          # Shared types/utilities
-├── docs/           # Documentation
-├── .env.example    # Environment template
-├── .gitignore
-├── README.md
-└── package.json    # Root package.json
+task-manager/                 # Root directory (monorepo)
+├── client/                   # Vue frontend (separate npm project)
+│   ├── package.json         # Frontend dependencies & scripts
+│   ├── src/                 # Vue source code
+│   └── ...                  # Other frontend files
+├── server/                   # Express backend (separate npm project)
+│   ├── package.json         # Backend dependencies & scripts
+│   ├── src/                 # Express source code
+│   └── ...                  # Other backend files
+├── shared/                   # Shared types/utilities
+├── docs/                     # Documentation
+├── .env.example             # Environment template
+├── .gitignore               # Git ignore rules for entire monorepo
+├── README.md                # Project overview
+└── package.json             # Root orchestration scripts
+```
+
+**Purpose of root package.json:**
+
+The root `package.json` serves as the conductor for your monorepo:
+- **Orchestration**: Contains scripts to run both frontend and backend simultaneously
+- **Workspace management**: Can use npm workspaces to manage dependencies
+- **Common tasks**: Scripts for linting, formatting, or building the entire project
+- **Project metadata**: Name, version, description for the overall project
+
+Example root package.json:
+```json
+{
+  "name": "task-manager",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build"
+  }
+}
 ```
 
 **Acceptance criteria:**
@@ -380,22 +428,35 @@ Before beginning this task, ensure you have:
 ### Step-by-Step Implementation Approach
 
 **1. Directory Structure Planning**
-- Research common full-stack project structures
-- Decide between monorepo (single repository) vs. separate repositories
-- Plan for future scalability and team collaboration
-- Consider build tool requirements and deployment strategies
+- Understand the benefits of the monorepo approach for this project
+- Plan how client and server will communicate during development
+- Consider how shared code will be organized
+- Think about deployment strategies for both frontend and backend
 
 **2. Folder Creation and Organization**
-- Create main directories following industry conventions
-- Establish clear separation between frontend, backend, and shared code
-- Add placeholder files to maintain folder structure in Git
-- Document the purpose of each directory
+- Create the root project directory (e.g., `task-manager`)
+- Create `client/` and `server/` subdirectories
+- Create `shared/`, `docs/`, and other supporting directories
+- Initialize separate npm projects in client and server folders:
+  ```bash
+  # From root directory
+  cd client && npm init -y
+  cd ../server && npm init -y
+  cd .. && npm init -y  # Root package.json
+  ```
 
 **3. Root Package.json Setup**
-- Initialize npm in project root with `npm init`
-- Configure workspace if using monorepo approach
-- Add scripts for common development tasks
-- Include metadata about your project
+- The root package.json orchestrates the entire monorepo
+- Install `concurrently` as a dev dependency to run multiple scripts:
+  ```bash
+  npm install --save-dev concurrently
+  ```
+  Note: `concurrently` is a utility that runs multiple npm scripts in parallel, perfect for starting both frontend and backend servers with a single command
+- Add scripts that manage both projects:
+  - `dev`: Runs both client and server in development mode
+  - `install:all`: Installs dependencies for all projects
+  - `build`: Builds both client and server for production
+- Set `"private": true` to prevent accidental npm publication
 
 **4. Documentation Structure**
 - Create docs folder with initial documentation files
