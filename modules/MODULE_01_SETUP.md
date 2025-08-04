@@ -414,6 +414,145 @@ Before beginning this task, ensure you have:
 3. Confirm new team members can understand and use scripts from README
 4. Check that scripts fail gracefully with helpful error messages
 
+---
+
+### Task 1.6: Basic Express Server Setup
+**Objective:** Create a minimal Express server that will work with the Vue frontend in Module 2
+
+**What you need to accomplish:**
+- Initialize server package.json
+- Install Express and basic dependencies
+- Create a simple Express server with health check endpoint
+- Set up development script with hot reloading
+- Test server is accessible for frontend proxy
+
+**Documentation to consult:**
+- [Express.js Getting Started](https://expressjs.com/en/starter/hello-world.html)
+- [Nodemon for Auto-restart](https://nodemon.io/)
+- [Express CORS Setup](https://expressjs.com/en/resources/middleware/cors.html)
+
+**Step-by-step implementation:**
+
+**1. Initialize Server Project**
+```bash
+cd server/
+npm init -y
+```
+
+**2. Install Dependencies**
+```bash
+npm install express cors dotenv
+npm install -D nodemon
+```
+
+**Understanding the dependencies:**
+- **express**: The web framework that handles HTTP requests and responses
+- **cors**: Cross-Origin Resource Sharing middleware that allows your Vue frontend (running on port 3000) to communicate with your Express backend (running on port 5000)
+- **dotenv**: Loads environment variables from .env file into process.env
+- **nodemon** (dev dependency): Automatically restarts your server when you make changes to files, essential for development productivity
+
+**3. Create Basic Server File**
+Create `server/index.js`:
+```javascript
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Health check endpoint
+// Purpose: This endpoint allows monitoring tools and your frontend to verify
+// the server is running properly. It's a common pattern in production apps
+// for load balancers and uptime monitors to check application health.
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'TaskFlow API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Basic route
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'Welcome to TaskFlow API',
+    version: '1.0.0'
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: 'Something went wrong!',
+    message: err.message 
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Health check available at http://localhost:${PORT}/api/health`);
+});
+```
+
+**4. Update Server package.json Scripts**
+Add to `server/package.json`:
+```json
+{
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  }
+}
+```
+
+**5. Create Server Environment Variables**
+Create `server/.env`:
+```
+PORT=5000
+NODE_ENV=development
+```
+
+**Why a health check endpoint?**
+The `/api/health` endpoint serves multiple purposes:
+- **Development**: Quickly verify your server is running without complex API calls
+- **Frontend Integration**: Your Vue app can check if the backend is available before making requests
+- **Production Monitoring**: Health checks are used by deployment platforms (AWS, Heroku, etc.) to ensure your app is responsive
+- **Debugging**: Provides a simple endpoint to test when troubleshooting connection issues
+
+**Acceptance criteria:**
+- [ ] Express server runs on port 5000
+- [ ] Health check endpoint returns JSON response
+- [ ] Server restarts automatically when files change
+- [ ] CORS is configured to accept frontend requests
+- [ ] Server integrates with root npm scripts
+
+## Implementation Guidance
+
+### Getting Started
+Before beginning this task, ensure you have:
+- [ ] Server folder created from Task 1.2
+- [ ] Node.js and npm installed
+- [ ] Understanding of basic Express.js concepts
+
+### Verification Steps:
+1. Run `npm run dev` in server folder - should start on port 5000
+2. Visit `http://localhost:5000/api/health` - should see JSON response
+3. Edit server file and save - should see server restart
+4. Test from root directory: `npm run dev:server` works correctly
+5. Test CORS by making a fetch request from browser console:
+   ```javascript
+   fetch('http://localhost:5000/api/health')
+     .then(res => res.json())
+     .then(data => console.log(data))
+   ```
+
 ## Challenge Extensions
 
 ### Advanced Git Configuration
@@ -455,6 +594,9 @@ Before moving to Module 2, ensure:
 - [ ] Git repository is set up with proper structure
 - [ ] Environment variables are working
 - [ ] All npm scripts execute without errors
+- [ ] Basic Express server is running on port 5000
+- [ ] Health check endpoint responds at `/api/health`
+- [ ] Server auto-restarts with nodemon
 - [ ] Documentation is complete and up-to-date
 - [ ] Code has been committed and pushed to repository
 
