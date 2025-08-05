@@ -1078,6 +1078,71 @@ const handleClick = (event) => {
 </script>
 ```
 
+**Understanding the Computed Classes Pattern:**
+
+The `buttonClasses` computed property demonstrates a fundamental Vue.js best practice for dynamic class management. This pattern is widely used throughout Vue.js applications and is considered the standard approach for complex conditional styling.
+
+**Why Use Computed Properties for Classes?**
+
+**1. Performance Benefits:**
+```javascript
+// ❌ BAD: Method approach (recalculates every render)
+methods: {
+  getButtonClasses() {
+    return ['btn', this.variant === 'primary' ? 'btn-primary' : 'btn-secondary']
+  }
+}
+
+// ❌ BAD: Inline logic (hard to maintain, recalculates every render)
+<button :class="`btn ${variant === 'primary' ? 'btn-primary' : 'btn-secondary'}`">
+
+// ✅ GOOD: Computed property (cached, only recalculates when dependencies change)
+computed: {
+  buttonClasses() {
+    return ['btn', this.variant === 'primary' ? 'btn-primary' : 'btn-secondary']
+  }
+}
+```
+
+**2. Reactivity Benefits:**
+- **Automatic dependency tracking**: Vue automatically tracks that `buttonClasses` depends on `variant`, `size`, `disabled`, etc.
+- **Efficient updates**: Only recalculates when actual dependencies change, not on every render
+- **Lazy evaluation**: Only computes the value when it's actually needed in the template
+
+**3. Code Organization Benefits:**
+- **Separation of concerns**: Class logic is separated from template markup
+- **Maintainability**: All styling logic is centralized in one location
+- **Readability**: Template stays clean with simple `:class="buttonClasses"`
+- **Testability**: Class logic can be unit tested independently
+
+**4. Vue.js Official Pattern:**
+This pattern appears throughout Vue.js core examples:
+- **Data Grid**: Uses computed for `filteredData` based on search and sort
+- **TodoMVC**: Uses computed for `filteredTodos` and `remainingText`
+- **Radar Chart**: Uses computed for dynamic positioning calculations
+
+**Real-World Usage Considerations:**
+
+**When to use computed classes:**
+- Complex conditional logic (3+ conditions)
+- Multiple prop dependencies
+- Reusable components with many variants
+- Performance-critical components used frequently
+
+**When simpler approaches work:**
+- Simple boolean conditions: `:class="{ active: isActive }"`
+- Single prop dependency: `:class="variant"`
+- One-time use components with minimal logic
+
+**Component Library Benefits:**
+For base components like `BaseButton`, computed classes provide:
+- **Consistency**: All buttons use identical class calculation logic
+- **Performance**: Efficient for components rendered many times per page
+- **Extensibility**: Easy to add new variants without touching templates
+- **Debugging**: Class logic can be inspected and tested in isolation
+
+---
+
 **Tailwind CSS Classes Explained:**
 
 **Base Layout Classes:**
