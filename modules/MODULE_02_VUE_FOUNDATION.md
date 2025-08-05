@@ -1098,28 +1098,609 @@ const handleClick = (event) => {
 - `disabled:bg-gray-300 disabled:cursor-not-allowed`: Gray background and cursor change for disabled state
 - `w-full`: Full width when `fullWidth` prop is true
 
-**3. Create Remaining Base Components (Guided Implementation)**
+**3. Understanding the "Base" Component Architecture**
 
-Now create the other base components following the same patterns:
+**Why "Base" Components?**
+The "Base" prefix indicates these are **foundational, generic components** that serve as building blocks for your application:
 
-**BaseInput.vue** - Key features to implement:
-- Props: `type`, `placeholder`, `disabled`, `error`, `label`
-- Use `v-model` with `defineModel()` for two-way binding
-- Tailwind classes: `border rounded-lg px-3 py-2 focus:ring-2 focus:border-taskflow-primary`
-- Error states: `border-red-500 text-red-600` for validation errors
+- **BaseButton** → Generic button that can be styled for any use case
+- **TaskButton** → Specific button for task-related actions (would extend BaseButton)
+- **ProjectCard** → Specific card for project display (would use BaseCard internally)
 
-**BaseModal.vue** - Key features to implement:
-- Props: `show`, `title`, `size`
-- Use `Teleport` to render in document body
-- Backdrop with `fixed inset-0 bg-black bg-opacity-50`
-- Modal content with `bg-white rounded-lg shadow-xl max-w-md mx-auto`
-- Close on backdrop click and escape key
+**Component Hierarchy Strategy:**
+```
+Base Components (Generic)
+├── BaseButton.vue     # Any button in the app
+├── BaseInput.vue      # Any form input
+├── BaseModal.vue      # Any modal dialog
+└── BaseCard.vue       # Any card container
 
-**BaseCard.vue** - Key features to implement:
-- Props: `padding`, `shadow`, `hover`
-- Base classes: `bg-white rounded-lg border`
-- Shadow variants: `shadow-sm`, `shadow-md`, `shadow-lg`
-- Hover effects: `hover:shadow-md transition-shadow`
+Feature Components (Specific)
+├── TaskCard.vue       # Uses BaseCard + task-specific logic
+├── LoginForm.vue      # Uses BaseInput + BaseButton + auth logic
+└── ProjectModal.vue   # Uses BaseModal + project-specific content
+```
+
+**Benefits of This Approach:**
+- **Consistency**: All buttons look and behave the same way
+- **Maintainability**: Change button styles in one place
+- **Reusability**: Base components work anywhere in the app
+- **Testability**: Test complex logic separately from UI components
+
+---
+
+**3. Create Remaining Base Components (Detailed Implementation)**
+
+### BaseInput.vue - Form Input Component
+
+**Purpose**: A flexible input component that handles all HTML input types and form validation states.
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseInput.vue`:
+
+```vue
+<template>
+  <div class="space-y-1">
+    <!-- Label (optional) -->
+    <label 
+      v-if="label" 
+      :for="inputId" 
+      class="block text-sm font-medium text-gray-700"
+    >
+      {{ label }}
+      <span v-if="required" class="text-red-500 ml-1">*</span>
+    </label>
+    
+    <!-- Input field -->
+    <input
+      :id="inputId"
+      :type="type"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      :required="required"
+      :class="inputClasses"
+      :value="modelValue"
+      @input="handleInput"
+      @blur="handleBlur"
+      @focus="handleFocus"
+    >
+    
+    <!-- Error message -->
+    <p 
+      v-if="error" 
+      class="text-sm text-red-600"
+    >
+      {{ error }}
+    </p>
+    
+    <!-- Help text -->
+    <p 
+      v-if="help && !error" 
+      class="text-sm text-gray-500"
+    >
+      {{ help }}
+    </p>
+  </div>
+</template>
+
+<script setup>
+import { computed, ref } from 'vue'
+
+// Generate unique ID for accessibility
+const inputId = ref(`input-${Math.random().toString(36).substr(2, 9)}`)
+
+// Props that map to HTML input attributes
+const props = defineProps({
+  // HTML input type attribute
+  type: {
+    type: String,
+    default: 'text',
+    validator: (value) => [
+      'text', 'email', 'password', 'number', 'tel', 
+      'url', 'search', 'date', 'time', 'datetime-local'
+    ].includes(value)
+  },
+  
+  // Vue v-model binding
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  
+  // HTML attributes
+  placeholder: String,
+  disabled: Boolean,
+  required: Boolean,
+  
+  // Component-specific props
+  label: String,
+  error: String,
+  help: String,
+  
+  // Size variants
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg'].includes(value)
+  }
+})
+
+// Vue 3 v-model emit
+const emit = defineEmits(['update:modelValue', 'blur', 'focus'])
+
+// Computed classes based on state
+const inputClasses = computed(() => {
+  const baseClasses = [
+    'block', 'w-full', 'border', 'rounded-lg',
+    'transition-colors', 'duration-200',
+    'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-1'
+  ]
+  
+  // Size-specific classes
+  const sizeClasses = {
+    sm: ['px-3', 'py-1.5', 'text-sm'],
+    md: ['px-3', 'py-2', 'text-sm'],
+    lg: ['px-4', 'py-3', 'text-base']
+  }
+  
+  // State-specific classes
+  if (props.error) {
+    baseClasses.push(
+      'border-red-500', 'text-red-900', 'placeholder-red-400',
+      'focus:ring-red-500', 'focus:border-red-500'
+    )
+  } else if (props.disabled) {
+    baseClasses.push(
+      'bg-gray-50', 'border-gray-200', 'text-gray-500', 
+      'cursor-not-allowed'
+    )
+  } else {
+    baseClasses.push(
+      'border-gray-300', 'text-gray-900', 'placeholder-gray-400',
+      'focus:ring-taskflow-primary', 'focus:border-taskflow-primary',
+      'hover:border-gray-400'
+    )
+  }
+  
+  baseClasses.push(...sizeClasses[props.size])
+  return baseClasses.join(' ')
+})
+
+// Event handlers
+const handleInput = (event) => {
+  emit('update:modelValue', event.target.value)
+}
+
+const handleBlur = (event) => {
+  emit('blur', event)
+}
+
+const handleFocus = (event) => {
+  emit('focus', event)
+}
+</script>
+```
+
+**Props to HTML Attribute Mapping:**
+- `type` → `<input type="text|email|password|etc">` 
+- `placeholder` → `<input placeholder="Enter text...">`
+- `disabled` → `<input disabled>`
+- `required` → `<input required>`
+- `modelValue` → Vue's v-model system for two-way binding
+
+**Usage Examples:**
+```vue
+<!-- Basic text input -->
+<BaseInput 
+  v-model="username" 
+  type="text" 
+  label="Username" 
+  placeholder="Enter your username" 
+/>
+
+<!-- Email input with validation -->
+<BaseInput 
+  v-model="email" 
+  type="email" 
+  label="Email Address" 
+  :error="emailError" 
+  required 
+/>
+
+<!-- Password input -->
+<BaseInput 
+  v-model="password" 
+  type="password" 
+  label="Password" 
+  help="Must be at least 8 characters" 
+/>
+```
+
+---
+
+### BaseModal.vue - Modal Dialog Component
+
+**Purpose**: A flexible modal component that renders outside the normal DOM hierarchy using Vue's Teleport feature.
+
+**What is Teleport?**
+Teleport allows you to render a component's template in a different part of the DOM tree, which is essential for modals because:
+- **Z-index issues**: Modals need to appear above all other content
+- **Accessibility**: Screen readers need modals in the document root
+- **Styling control**: Easier to manage backdrop and positioning
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseModal.vue`:
+
+```vue
+<template>
+  <!-- Teleport renders this outside the component tree -->
+  <Teleport to="body">
+    <!-- Modal wrapper - only renders when show is true -->
+    <div
+      v-if="show"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="titleId"
+    >
+      <!-- Backdrop -->
+      <div 
+        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        @click="handleBackdropClick"
+      ></div>
+      
+      <!-- Modal container -->
+      <div class="flex min-h-full items-center justify-center p-4">
+        <!-- Modal content -->
+        <div 
+          :class="modalClasses"
+          class="relative bg-white rounded-lg shadow-xl transform transition-all"
+          @click.stop
+        >
+          <!-- Header -->
+          <div v-if="title || $slots.header" class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <!-- Title -->
+              <h3 
+                :id="titleId" 
+                class="text-lg font-semibold text-gray-900"
+              >
+                <slot name="header">{{ title }}</slot>
+              </h3>
+              
+              <!-- Close button -->
+              <button
+                @click="handleClose"
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close modal"
+              >
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Body -->
+          <div class="px-6 py-4">
+            <slot></slot>
+          </div>
+          
+          <!-- Footer -->
+          <div v-if="$slots.footer" class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+            <slot name="footer"></slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
+<script setup>
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+
+// Generate unique ID for accessibility
+const titleId = ref(`modal-title-${Math.random().toString(36).substr(2, 9)}`)
+
+const props = defineProps({
+  // Controls modal visibility
+  show: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Modal title
+  title: String,
+  
+  // Size variants
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg', 'xl', 'full'].includes(value)
+  },
+  
+  // Whether clicking backdrop closes modal
+  closeOnBackdrop: {
+    type: Boolean,
+    default: true
+  },
+  
+  // Whether pressing escape closes modal
+  closeOnEscape: {
+    type: Boolean,
+    default: true
+  }
+})
+
+const emit = defineEmits(['close', 'backdrop-click'])
+
+// Size-based classes
+const modalClasses = computed(() => {
+  const sizeClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-2xl',
+    full: 'max-w-full mx-4'
+  }
+  
+  return ['w-full', sizeClasses[props.size]].join(' ')
+})
+
+// Event handlers
+const handleClose = () => {
+  emit('close')
+}
+
+const handleBackdropClick = () => {
+  emit('backdrop-click')
+  if (props.closeOnBackdrop) {
+    handleClose()
+  }
+}
+
+// Keyboard event handler
+const handleKeydown = (event) => {
+  if (event.key === 'Escape' && props.closeOnEscape && props.show) {
+    handleClose()
+  }
+}
+
+// Body scroll management
+watch(() => props.show, (isShowing) => {
+  if (isShowing) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = '' // Cleanup
+})
+</script>
+```
+
+**Teleport Explanation:**
+- `<Teleport to="body">` renders the modal at the end of the `<body>` element
+- This ensures the modal appears above all other content
+- The backdrop covers the entire viewport with `fixed inset-0`
+- Z-index of 50 ensures it appears above most other elements
+
+**Usage Examples:**
+```vue
+<template>
+  <div>
+    <BaseButton @click="showModal = true">Open Modal</BaseButton>
+    
+    <BaseModal 
+      :show="showModal" 
+      title="Confirmation" 
+      @close="showModal = false"
+    >
+      <p>Are you sure you want to delete this project?</p>
+      
+      <template #footer>
+        <div class="flex justify-end space-x-3">
+          <BaseButton variant="outline" @click="showModal = false">
+            Cancel
+          </BaseButton>
+          <BaseButton variant="danger" @click="handleDelete">
+            Delete
+          </BaseButton>
+        </div>
+      </template>
+    </BaseModal>
+  </div>
+</template>
+```
+
+---
+
+### BaseCard.vue - Flexible Container Component
+
+**Purpose**: A versatile card container that provides consistent styling and flexible content layout.
+
+**Internal Layout Structure:**
+Cards typically have three main areas:
+1. **Header**: Title, actions, metadata
+2. **Body**: Main content area
+3. **Footer**: Actions, links, additional info
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseCard.vue`:
+
+```vue
+<template>
+  <div :class="cardClasses" class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <!-- Header slot -->
+    <div 
+      v-if="$slots.header" 
+      class="px-6 py-4 border-b border-gray-200 bg-gray-50"
+    >
+      <slot name="header"></slot>
+    </div>
+    
+    <!-- Main content -->
+    <div :class="bodyClasses">
+      <slot></slot>
+    </div>
+    
+    <!-- Footer slot -->
+    <div 
+      v-if="$slots.footer" 
+      class="px-6 py-4 border-t border-gray-200 bg-gray-50"
+    >
+      <slot name="footer"></slot>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  // Padding variants for body content
+  padding: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['none', 'sm', 'md', 'lg'].includes(value)
+  },
+  
+  // Shadow intensity
+  shadow: {
+    type: String,
+    default: 'sm',
+    validator: (value) => ['none', 'sm', 'md', 'lg', 'xl'].includes(value)
+  },
+  
+  // Hover effects
+  hover: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Clickable card (adds cursor pointer)
+  clickable: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['click'])
+
+// Card container classes
+const cardClasses = computed(() => {
+  const classes = ['transition-all', 'duration-200']
+  
+  // Shadow classes
+  const shadowClasses = {
+    none: '',
+    sm: 'shadow-sm',
+    md: 'shadow-md',
+    lg: 'shadow-lg',
+    xl: 'shadow-xl'
+  }
+  
+  if (props.shadow !== 'none') {
+    classes.push(shadowClasses[props.shadow])
+  }
+  
+  // Hover effects
+  if (props.hover) {
+    classes.push('hover:shadow-md', 'hover:-translate-y-1')
+  }
+  
+  // Clickable styling
+  if (props.clickable) {
+    classes.push('cursor-pointer', 'hover:shadow-lg')
+  }
+  
+  return classes.join(' ')
+})
+
+// Body padding classes
+const bodyClasses = computed(() => {
+  const paddingClasses = {
+    none: '',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8'
+  }
+  
+  return paddingClasses[props.padding]
+})
+
+const handleClick = (event) => {
+  if (props.clickable) {
+    emit('click', event)
+  }
+}
+</script>
+```
+
+**Internal Layout Patterns:**
+
+1. **Simple Card** (just content):
+```vue
+<BaseCard>
+  <h3>Card Title</h3>
+  <p>Card content goes here...</p>
+</BaseCard>
+```
+
+2. **Card with Header and Footer**:
+```vue
+<BaseCard>
+  <template #header>
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">Project Alpha</h3>
+      <span class="text-sm text-gray-500">In Progress</span>
+    </div>
+  </template>
+  
+  <p class="text-gray-600">Project description and details...</p>
+  
+  <template #footer>
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-gray-500">Due: March 15</span>
+      <BaseButton size="sm">View Details</BaseButton>
+    </div>
+  </template>
+</BaseCard>
+```
+
+3. **Clickable Card** (for navigation):
+```vue
+<BaseCard clickable hover @click="$router.push('/projects/123')">
+  <div class="flex items-center space-x-4">
+    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+      <span class="text-blue-600 text-xl">📋</span>
+    </div>
+    <div>
+      <h3 class="font-semibold">Website Redesign</h3>
+      <p class="text-sm text-gray-500">8 tasks • 3 team members</p>
+    </div>
+  </div>
+</BaseCard>
+```
+
+**Layout Flexibility:**
+The card provides structure while allowing complete flexibility in content layout through slots. This makes it suitable for:
+- Project cards
+- User profile cards
+- Settings panels
+- Dashboard widgets
+- Form containers
 
 **4. Layout Components Structure**
 
@@ -1174,6 +1755,29 @@ export function useToggle(initialValue = false) {
 ```
 
 This composable will be useful for sidebar toggles, modal states, and dropdown menus.
+
+**Component Architecture Summary:**
+
+**Base Components** (Generic building blocks):
+- Handle common UI patterns and interactions
+- Provide consistent styling and behavior
+- Accept props for customization
+- Emit events for parent communication
+- Focus on reusability across the entire application
+
+**Feature Components** (Business logic specific):
+- Use Base components internally
+- Handle domain-specific logic (tasks, projects, users)
+- Connect to APIs and state management
+- Implement complex user interactions
+
+**Layout Components** (Application structure):
+- Compose Base components into larger layouts
+- Handle responsive behavior
+- Manage navigation and routing
+- Provide consistent application shell
+
+This architecture ensures your codebase remains maintainable and scalable as TaskFlow grows in complexity.
 
 **Key Decision Points:**
 - **Component granularity:** Balance between reusability and simplicity
