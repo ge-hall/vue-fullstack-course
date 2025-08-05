@@ -233,9 +233,28 @@ Before beginning this task, ensure you have:
 - [Tailwind CSS Configuration](https://tailwindcss.com/docs/configuration)
 - [Tailwind CSS Framework Guide for Vue](https://tailwindcss.com/docs/installation/framework-guides)
 
-**Step-by-step installation for Tailwind CSS 4:**
+**Acceptance criteria:**
+- [ ] Tailwind CSS 4 with Vite plugin properly installed
+- [ ] Vite configuration updated with @tailwindcss/vite plugin
+- [ ] Styles compile without errors using new import syntax
+- [ ] TaskFlow custom design tokens defined
+- [ ] Utility classes work in Vue components
+- [ ] Hot reloading works with CSS changes
 
-**1. Install Tailwind CSS 4 with Vite Plugin**
+## Implementation Guidance
+
+### Getting Started
+Before beginning this task, ensure you have:
+- [ ] Vue 3 project successfully running from Task 2.1
+- [ ] Understanding of utility-first CSS approach
+- [ ] Familiarity with Vite and how plugins work
+- [ ] Basic knowledge of CSS imports and custom properties
+
+### Step-by-Step Implementation Approach
+
+**1. Tailwind CSS 4 Installation with Vite Plugin**
+
+**Install Tailwind CSS 4 with Vite Plugin:**
 ```bash
 # In your client/ directory
 cd client/
@@ -248,7 +267,7 @@ npm install tailwindcss @tailwindcss/vite
 - **Better performance**: Native Vite integration with faster builds
 - **Simplified configuration**: Less setup compared to the traditional PostCSS approach
 
-**2. Configure Vite Plugin**
+**Configure Vite Plugin:**
 Update your `client/vite.config.js` to include the Tailwind plugin:
 ```javascript
 import { defineConfig } from 'vite'
@@ -273,7 +292,7 @@ export default defineConfig({
 })
 ```
 
-**3. Import Tailwind CSS**
+**Import Tailwind CSS:**
 Update your main CSS file `client/src/style.css` (or create it):
 ```css
 @import "tailwindcss";
@@ -290,7 +309,7 @@ Update your main CSS file `client/src/style.css` (or create it):
 /* Custom component styles can go here */
 ```
 
-**4. Import CSS in Your Vue App**
+**Import CSS in Your Vue App:**
 Ensure the CSS is imported in `client/src/main.js`:
 ```javascript
 import { createApp } from 'vue'
@@ -304,7 +323,7 @@ app.use(router)
 app.mount('#app')
 ```
 
-**5. Configure Tailwind (Optional)**
+**Configure Tailwind (Optional):**
 Create `client/tailwind.config.js` for customization:
 ```javascript
 /** @type {import('tailwindcss').Config} */
@@ -333,31 +352,6 @@ export default {
   plugins: [],
 }
 ```
-
-**Acceptance criteria:**
-- [ ] Tailwind CSS 4 with Vite plugin properly installed
-- [ ] Vite configuration updated with @tailwindcss/vite plugin
-- [ ] Styles compile without errors using new import syntax
-- [ ] TaskFlow custom design tokens defined
-- [ ] Utility classes work in Vue components
-- [ ] Hot reloading works with CSS changes
-
-## Implementation Guidance
-
-### Getting Started
-Before beginning this task, ensure you have:
-- [ ] Vue 3 project successfully running from Task 2.1
-- [ ] Understanding of utility-first CSS approach
-- [ ] Familiarity with Vite and how plugins work
-- [ ] Basic knowledge of CSS imports and custom properties
-
-### Step-by-Step Implementation Approach
-
-**1. Tailwind 4 Installation with Vite Plugin**
-- Install the new `@tailwindcss/vite` plugin (no PostCSS setup required)
-- Configure the Vite plugin in your config file
-- Understand how the new plugin simplifies the build process
-- Import Tailwind using the new `@import "tailwindcss"` syntax
 
 **2. TaskFlow Design System Setup**
 - Import Tailwind in your main CSS file using the new syntax
