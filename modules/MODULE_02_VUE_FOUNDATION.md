@@ -886,23 +886,10 @@ client/src/
 └── utils/             # Utility functions
 ```
 
-**Base component example (BaseButton.vue):**
-```vue
-<template>
-  <button
-    :class="buttonClasses"
-    :disabled="disabled"
-    @click="$emit('click', $event)"
-  >
-    <slot />
-  </button>
-</template>
-
-<script setup>
-// Define props, emits, and computed classes
-// Use Tailwind for styling variants
-</script>
-```
+**Approach:**
+- Create one complete base component with full implementation
+- Provide guidance and patterns for remaining components
+- Focus on reusability and consistency
 
 **Acceptance criteria:**
 - [ ] Component folder structure created
@@ -922,29 +909,271 @@ Before beginning this task, ensure you have:
 
 ### Step-by-Step Implementation Approach
 
-**1. Component Architecture Planning**
-- Research Vue 3 component organization best practices
-- Plan your component hierarchy from atomic to complex components
-- Decide on naming conventions for different component types
-- Consider reusability and maintainability in your structure
+**1. Create Component Folder Structure**
+First, create the organized folder structure:
+```bash
+# From client/src directory
+mkdir -p components/base
+mkdir -p components/layout
+mkdir -p components/features/auth
+mkdir -p components/features/projects
+mkdir -p components/features/dashboard
+mkdir -p composables
+mkdir -p utils
+```
 
-**2. Base Component Development**
-- Create foundational components that will be reused throughout the app
-- Focus on components like buttons, inputs, modals, and cards
-- Use prop validation with Vue's built-in prop system
-- Implement proper event emission patterns for component communication
+**Component Architecture Principles:**
+- **Base components**: Generic, reusable UI elements (buttons, inputs, modals)
+- **Layout components**: Application structure (header, sidebar, footer)
+- **Feature components**: Business logic specific components (project cards, task lists)
+- **Composables**: Reusable Vue 3 composition functions
+- **Utils**: Pure JavaScript utility functions
 
-**3. Layout Component Structure**
-- Design components that handle application layout and navigation
-- Create header, sidebar, footer, and main content area components
-- Implement responsive behavior within layout components
-- Set up proper slot usage for flexible content areas
+**2. Complete BaseButton Component Implementation**
 
-**4. Composition API Integration**
-- Use script setup syntax for cleaner component code
-- Create reusable composables for shared logic
-- Implement reactive state management within components
-- Set up proper lifecycle hook usage for component behavior
+Create `client/src/components/base/BaseButton.vue` with full implementation:
+
+```vue
+<template>
+  <button
+    :type="type"
+    :disabled="disabled"
+    :class="buttonClasses"
+    @click="handleClick"
+  >
+    <!-- Loading spinner slot -->
+    <span v-if="loading" class="mr-2">
+      <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </span>
+    
+    <!-- Icon slot (optional) -->
+    <slot name="icon" />
+    
+    <!-- Button text content -->
+    <slot />
+  </button>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+
+// Define component props with validation
+const props = defineProps({
+  // Button variants for different use cases
+  variant: {
+    type: String,
+    default: 'primary',
+    validator: (value) => ['primary', 'secondary', 'outline', 'ghost', 'danger'].includes(value)
+  },
+  // Size variations
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg', 'xl'].includes(value)
+  },
+  // Button type for forms
+  type: {
+    type: String,
+    default: 'button',
+    validator: (value) => ['button', 'submit', 'reset'].includes(value)
+  },
+  // Disabled state
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  // Loading state with spinner
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  // Full width button
+  fullWidth: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Define events this component can emit
+const emit = defineEmits(['click'])
+
+// Computed class string using Tailwind CSS
+const buttonClasses = computed(() => {
+  const classes = [
+    // Base button styles - consistent across all variants
+    'inline-flex', 'items-center', 'justify-center',
+    'font-medium', 'rounded-lg', 'transition-all', 'duration-200',
+    'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2'
+  ]
+  
+  // Size-specific padding and text sizing
+  const sizeClasses = {
+    sm: ['px-3', 'py-1.5', 'text-sm'],
+    md: ['px-4', 'py-2', 'text-sm'], 
+    lg: ['px-6', 'py-3', 'text-base'],
+    xl: ['px-8', 'py-4', 'text-lg']
+  }
+  
+  // Variant-specific colors and styling
+  const variantClasses = {
+    primary: [
+      'bg-taskflow-primary', 'text-white', 'border-transparent',
+      'hover:bg-blue-700', 'focus:ring-blue-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    secondary: [
+      'bg-taskflow-secondary', 'text-white', 'border-transparent',
+      'hover:bg-gray-600', 'focus:ring-gray-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    outline: [
+      'bg-transparent', 'text-taskflow-primary', 'border', 'border-taskflow-primary',
+      'hover:bg-taskflow-primary', 'hover:text-white', 'focus:ring-blue-500',
+      'disabled:border-gray-300', 'disabled:text-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    ghost: [
+      'bg-transparent', 'text-taskflow-primary', 'border-transparent',
+      'hover:bg-blue-50', 'focus:ring-blue-500',
+      'disabled:text-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    danger: [
+      'bg-taskflow-error', 'text-white', 'border-transparent',
+      'hover:bg-red-700', 'focus:ring-red-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ]
+  }
+  
+  // Add size classes
+  classes.push(...sizeClasses[props.size])
+  
+  // Add variant classes
+  classes.push(...variantClasses[props.variant])
+  
+  // Add full width class if needed
+  if (props.fullWidth) {
+    classes.push('w-full')
+  }
+  
+  // Add loading state classes
+  if (props.loading) {
+    classes.push('cursor-wait')
+  }
+  
+  return classes.join(' ')
+})
+
+// Handle click events
+const handleClick = (event) => {
+  // Don't emit click if button is disabled or loading
+  if (props.disabled || props.loading) {
+    event.preventDefault()
+    return
+  }
+  
+  emit('click', event)
+}
+</script>
+```
+
+**Tailwind CSS Classes Explained:**
+
+**Base Layout Classes:**
+- `inline-flex items-center justify-center`: Creates a flexible button that centers content horizontally and vertically
+- `font-medium rounded-lg`: Medium font weight with rounded corners for modern appearance
+- `transition-all duration-200`: Smooth transitions for hover and focus states
+
+**Focus & Accessibility:**
+- `focus:outline-none focus:ring-2 focus:ring-offset-2`: Removes default outline and adds custom focus ring for better accessibility
+- `focus:ring-blue-500`: Blue focus ring color that matches the primary color
+
+**Responsive Sizing:**
+- `px-4 py-2 text-sm` (md): Horizontal padding 16px, vertical padding 8px, small text
+- `px-6 py-3 text-base` (lg): Larger padding and base text size for more prominent buttons
+
+**State Management:**
+- `hover:bg-blue-700`: Darker background on hover for primary variant
+- `disabled:bg-gray-300 disabled:cursor-not-allowed`: Gray background and cursor change for disabled state
+- `w-full`: Full width when `fullWidth` prop is true
+
+**3. Create Remaining Base Components (Guided Implementation)**
+
+Now create the other base components following the same patterns:
+
+**BaseInput.vue** - Key features to implement:
+- Props: `type`, `placeholder`, `disabled`, `error`, `label`
+- Use `v-model` with `defineModel()` for two-way binding
+- Tailwind classes: `border rounded-lg px-3 py-2 focus:ring-2 focus:border-taskflow-primary`
+- Error states: `border-red-500 text-red-600` for validation errors
+
+**BaseModal.vue** - Key features to implement:
+- Props: `show`, `title`, `size`
+- Use `Teleport` to render in document body
+- Backdrop with `fixed inset-0 bg-black bg-opacity-50`
+- Modal content with `bg-white rounded-lg shadow-xl max-w-md mx-auto`
+- Close on backdrop click and escape key
+
+**BaseCard.vue** - Key features to implement:
+- Props: `padding`, `shadow`, `hover`
+- Base classes: `bg-white rounded-lg border`
+- Shadow variants: `shadow-sm`, `shadow-md`, `shadow-lg`
+- Hover effects: `hover:shadow-md transition-shadow`
+
+**4. Layout Components Structure**
+
+Create basic layout components structure:
+
+**AppHeader.vue** - Features needed:
+- Logo/brand area
+- Navigation menu
+- User profile dropdown
+- Mobile hamburger menu toggle
+- Search functionality
+
+**AppSidebar.vue** - Features needed:
+- Navigation links with icons
+- Collapsible behavior
+- Mobile overlay mode
+- Active link highlighting
+
+**AppFooter.vue** - Features needed:
+- Copyright information
+- Legal links
+- Social media links
+
+**5. Create Reusable Composables**
+
+Create `client/src/composables/useToggle.js` for managing toggle states:
+```javascript
+import { ref } from 'vue'
+
+export function useToggle(initialValue = false) {
+  const state = ref(initialValue)
+  
+  const toggle = () => {
+    state.value = !state.value
+  }
+  
+  const setTrue = () => {
+    state.value = true
+  }
+  
+  const setFalse = () => {
+    state.value = false
+  }
+  
+  return {
+    state,
+    toggle,
+    setTrue,
+    setFalse
+  }
+}
+```
+
+This composable will be useful for sidebar toggles, modal states, and dropdown menus.
 
 **Key Decision Points:**
 - **Component granularity:** Balance between reusability and simplicity
@@ -953,10 +1182,43 @@ Before beginning this task, ensure you have:
 - **Prop validation:** Use Vue's prop validation features for component safety
 
 **Verification Steps:**
-1. Test that base components work with different prop combinations
-2. Verify component events are properly emitted and handled
-3. Confirm layout components adapt to different content scenarios
-4. Check that components follow consistent patterns and conventions
+1. **Test BaseButton component:**
+   ```vue
+   <template>
+     <div class="p-4 space-y-4">
+       <!-- Test different variants -->
+       <BaseButton variant="primary">Primary Button</BaseButton>
+       <BaseButton variant="outline">Outline Button</BaseButton>
+       <BaseButton variant="ghost">Ghost Button</BaseButton>
+       
+       <!-- Test sizes -->
+       <BaseButton size="sm">Small</BaseButton>
+       <BaseButton size="lg">Large</BaseButton>
+       
+       <!-- Test states -->
+       <BaseButton :loading="true">Loading...</BaseButton>
+       <BaseButton :disabled="true">Disabled</BaseButton>
+       
+       <!-- Test full width -->
+       <BaseButton :full-width="true">Full Width</BaseButton>
+     </div>
+   </template>
+   ```
+
+2. **Verify component organization:**
+   - Check that all components are in correct folders
+   - Ensure consistent naming conventions (PascalCase)
+   - Verify proper import/export patterns
+
+3. **Test component communication:**
+   - Props are passed correctly
+   - Events are emitted and handled
+   - Slots work as expected
+
+4. **Validate Tailwind integration:**
+   - All variants display correctly
+   - Responsive classes work at different screen sizes
+   - Custom TaskFlow colors are applied properly
 
 ---
 
@@ -989,26 +1251,10 @@ lg: 1024px  /* Desktop */
 xl: 1280px  /* Large desktop */
 ```
 
-**Layout composition pattern:**
-```vue
-<template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <AppHeader @toggle-sidebar="toggleSidebar" />
-    
-    <!-- Layout Grid -->
-    <div class="flex">
-      <!-- Sidebar -->
-      <AppSidebar :is-open="sidebarOpen" />
-      
-      <!-- Main Content -->
-      <main class="flex-1 p-4 lg:p-8">
-        <router-view />
-      </main>
-    </div>
-  </div>
-</template>
-```
+**Responsive behavior overview:**
+- **Mobile (< 768px)**: Hamburger menu with overlay sidebar
+- **Tablet (768px - 1024px)**: Collapsible sidebar with content adjustment
+- **Desktop (≥ 1024px)**: Fixed sidebar with spacious layout
 
 **Acceptance criteria:**
 - [ ] Responsive layout works on all screen sizes
@@ -1028,41 +1274,435 @@ Before beginning this task, ensure you have:
 
 ### Step-by-Step Implementation Approach
 
-**1. Mobile-First Layout Planning**
-- Design the mobile layout first, then enhance for larger screens
-- Plan navigation patterns for different screen sizes
-- Consider touch interactions and finger-friendly sizing
-- Map out how content will reflow at different breakpoints
+**1. Main App Layout Setup**
 
-**2. Responsive Navigation Implementation**
-- Create hamburger menu for mobile devices
-- Implement sidebar that converts to overlay on small screens
-- Add smooth transitions between mobile and desktop navigation states
-- Ensure navigation is accessible via keyboard and screen readers
+First, update your main `App.vue` to use the responsive layout:
 
-**3. Grid and Flexbox Layout System**
-- Use Tailwind's responsive grid classes for main layout structure
-- Implement flexible content areas that adapt to screen size
-- Create consistent spacing and proportions across breakpoints
-- Test layout behavior when content length varies
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header Component -->
+    <AppHeader @toggle-sidebar="toggleSidebar" />
+    
+    <!-- Main Layout Container -->
+    <div class="flex relative">
+      <!-- Sidebar Component -->
+      <AppSidebar 
+        :is-open="sidebarOpen" 
+        @close="closeSidebar"
+      />
+      
+      <!-- Main Content Area -->
+      <main class="flex-1 transition-all duration-300 ease-in-out">
+        <!-- Content padding adjusts based on screen size -->
+        <div class="p-4 sm:p-6 lg:p-8">
+          <router-view />
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
 
-**4. Interactive Behavior and State Management**
-- Implement sidebar toggle functionality with Vue reactivity
-- Add responsive behavior for navigation state management
-- Create smooth animations for layout transitions
-- Handle edge cases like screen rotation and browser resize
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import AppHeader from './components/layout/AppHeader.vue'
+import AppSidebar from './components/layout/AppSidebar.vue'
+
+// Sidebar state management
+const sidebarOpen = ref(false)
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
+
+// Close sidebar on large screens automatically
+const handleResize = () => {
+  if (window.innerWidth >= 1024) {
+    sidebarOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+</script>
+```
+
+**Tailwind Classes Explained:**
+- `min-h-screen`: Ensures layout takes full viewport height
+- `flex relative`: Creates flexible layout with relative positioning for overlay
+- `transition-all duration-300 ease-in-out`: Smooth transitions for layout changes
+- `p-4 sm:p-6 lg:p-8`: Responsive padding that increases on larger screens
+
+**2. AppHeader Component Implementation**
+
+Create `client/src/components/layout/AppHeader.vue`:
+
+```vue
+<template>
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Left side: Logo + Mobile menu button -->
+        <div class="flex items-center space-x-4">
+          <!-- Mobile hamburger menu button -->
+          <button
+            @click="$emit('toggle-sidebar')"
+            class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-taskflow-primary transition-colors"
+            aria-label="Toggle navigation menu"
+          >
+            <!-- Hamburger icon -->
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <!-- Logo -->
+          <router-link to="/" class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-taskflow-primary rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <span class="text-xl font-bold text-gray-900 hidden sm:block">TaskFlow</span>
+          </router-link>
+        </div>
+        
+        <!-- Center: Search (hidden on mobile) -->
+        <div class="hidden md:flex flex-1 max-w-lg mx-8">
+          <div class="relative w-full">
+            <input
+              type="search"
+              placeholder="Search projects, tasks..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-taskflow-primary focus:border-transparent"
+            >
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right side: User menu -->
+        <div class="flex items-center space-x-4">
+          <!-- Notifications button -->
+          <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          
+          <!-- User profile button -->
+          <button class="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <span class="text-sm font-medium">JD</span>
+            </div>
+            <span class="hidden sm:block text-sm font-medium">John Doe</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+</template>
+
+<script setup>
+// Define events this component can emit
+defineEmits(['toggle-sidebar'])
+</script>
+```
+
+**Header Tailwind Classes Explained:**
+
+**Responsive Layout:**
+- `sticky top-0 z-40`: Header stays at top when scrolling with high z-index
+- `px-4 sm:px-6 lg:px-8`: Responsive horizontal padding
+- `lg:hidden`: Hamburger button only visible on screens smaller than large (1024px)
+
+**Mobile-First Design:**
+- `hidden sm:block`: Logo text hidden on mobile, shown on small screens and up
+- `hidden md:flex`: Search bar hidden on mobile and small screens, shown on medium screens and up
+- `flex items-center space-x-4`: Flexible layout with consistent spacing
+
+**Interactive States:**
+- `hover:bg-gray-100 transition-colors`: Smooth color transitions on hover
+- `focus:ring-2 focus:ring-taskflow-primary`: Accessibility focus indicators
+- `p-2 rounded-lg`: Touch-friendly button sizing with rounded corners
+
+**3. AppSidebar Component with Responsive Behavior**
+
+Create `client/src/components/layout/AppSidebar.vue`:
+
+```vue
+<template>
+  <!-- Overlay for mobile (only visible when sidebar is open) -->
+  <div
+    v-if="isOpen"
+    @click="$emit('close')"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity"
+    aria-hidden="true"
+  ></div>
+  
+  <!-- Sidebar -->
+  <aside 
+    :class="sidebarClasses"
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none"
+  >
+    <!-- Sidebar header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
+      <span class="text-lg font-semibold text-gray-900">Menu</span>
+      <button
+        @click="$emit('close')"
+        class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Close navigation menu"
+      >
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Navigation items -->
+    <nav class="flex-1 p-4 space-y-2">
+      <router-link
+        v-for="item in navigationItems"
+        :key="item.name"
+        :to="item.path"
+        :class="getLinkClasses(item.path)"
+        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+        @click="handleLinkClick"
+      >
+        <component :is="item.icon" class="h-5 w-5" />
+        <span>{{ item.name }}</span>
+      </router-link>
+    </nav>
+    
+    <!-- Sidebar footer -->
+    <div class="p-4 border-t border-gray-200">
+      <div class="flex items-center space-x-3 px-3 py-2">
+        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+          <span class="text-xs font-medium">JD</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">John Doe</p>
+          <p class="text-xs text-gray-500 truncate">john@example.com</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// Props
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Events
+const emit = defineEmits(['close'])
+
+// Router
+const route = useRoute()
+
+// Navigation items with simple icon components
+const navigationItems = [
+  {
+    name: 'Dashboard',
+    path: '/dashboard',
+    icon: 'DashboardIcon'
+  },
+  {
+    name: 'Projects',
+    path: '/projects',
+    icon: 'ProjectsIcon'
+  },
+  {
+    name: 'Profile',
+    path: '/profile',
+    icon: 'ProfileIcon'
+  }
+]
+
+// Computed sidebar classes
+const sidebarClasses = computed(() => {
+  return props.isOpen ? 'translate-x-0' : '-translate-x-full'
+})
+
+// Get link classes based on active state
+const getLinkClasses = (path) => {
+  const isActive = route.path === path
+  return isActive
+    ? 'bg-taskflow-primary text-white'
+    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+}
+
+// Handle link click (close sidebar on mobile)
+const handleLinkClick = () => {
+  // Close sidebar on mobile after navigation
+  if (window.innerWidth < 1024) {
+    emit('close')
+  }
+}
+</script>
+```
+
+**Sidebar Tailwind Classes Explained:**
+
+**Responsive Positioning:**
+- `fixed lg:static`: Fixed positioning on mobile/tablet, static on desktop
+- `inset-y-0 left-0`: Full height positioning from left edge
+- `z-50`: High z-index to appear above other content
+
+**Mobile Overlay Pattern:**
+- `fixed inset-0 bg-black bg-opacity-50`: Semi-transparent backdrop covering entire screen
+- `lg:hidden`: Overlay only visible on screens smaller than large
+
+**Slide Animation:**
+- `transform transition-transform duration-300 ease-in-out`: Smooth slide animation
+- `lg:translate-x-0 lg:transition-none`: No animation on desktop (always visible)
+- `-translate-x-full` / `translate-x-0`: Slide in/out from left edge
+
+**Touch-Friendly Sizing:**
+- `w-64`: Fixed width of 256px (16rem) for consistent sidebar size
+- `px-3 py-2`: Comfortable touch targets for navigation items
+- `space-y-2`: Consistent vertical spacing between navigation items
+
+**4. Responsive Content Layout Patterns**
+
+For responsive content within your views, use these Tailwind patterns:
+
+**Grid Layouts:**
+```vue
+<!-- Responsive grid that adapts to screen size -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+  <div class="bg-white p-4 rounded-lg border">
+    <!-- Card content -->
+  </div>
+</div>
+```
+
+**Responsive Typography:**
+```vue
+<!-- Text that scales appropriately -->
+<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-6">
+  Dashboard
+</h1>
+<p class="text-sm sm:text-base text-gray-600 leading-relaxed">
+  Welcome back! Here's your project overview.
+</p>
+```
+
+**Responsive Containers:**
+```vue
+<!-- Container with responsive max-width -->
+<div class="max-w-sm sm:max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Content -->
+</div>
+```
+
+**Mobile-First Button Groups:**
+```vue
+<!-- Buttons that stack on mobile, inline on desktop -->
+<div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+  <BaseButton class="w-full sm:w-auto">Primary Action</BaseButton>
+  <BaseButton variant="outline" class="w-full sm:w-auto">Secondary Action</BaseButton>
+</div>
+```
+
+**Responsive Classes Guide:**
+- `sm:` (640px+): Mobile landscape and small tablets
+- `md:` (768px+): Tablets and small laptops
+- `lg:` (1024px+): Laptops and desktops
+- `xl:` (1280px+): Large desktop screens
+
+**Common Responsive Patterns:**
+- Padding: `p-4 sm:p-6 lg:p-8` - Increases padding on larger screens
+- Text: `text-sm sm:text-base lg:text-lg` - Larger text on bigger screens
+- Spacing: `space-y-4 lg:space-y-6` - More spacing on desktop
+- Hiding: `hidden sm:block` - Hide on mobile, show on larger screens
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` - Responsive columns
 
 **Key Decision Points:**
-- **Breakpoint strategy:** Choose which breakpoints are most important for your users
-- **Navigation pattern:** Decide between overlay, push, or reveal sidebar patterns
-- **Content priority:** Plan what content is most important on smaller screens
-- **Performance considerations:** Balance animations with smooth performance
+
+**Breakpoint Strategy:**
+- **Primary**: Mobile (< 768px) and Desktop (≥ 1024px) - Most important
+- **Secondary**: Tablet (768px - 1024px) - Handle gracefully
+- **TaskFlow choice**: Overlay sidebar pattern for simplicity and consistency
+
+**Navigation Patterns:**
+- **Mobile**: Overlay sidebar with backdrop (chosen for TaskFlow)
+- **Alternative**: Push content (more complex to implement)
+- **Alternative**: Off-canvas reveal (requires more JavaScript)
+
+**Content Priority (Mobile-First):**
+- **Essential**: Navigation, primary actions, key content
+- **Important**: Search, secondary actions, supporting content
+- **Nice-to-have**: Decorative elements, extensive padding
+
+**Performance Considerations:**
+- **Use CSS transforms** for sidebar animation (GPU accelerated)
+- **Minimize JavaScript** for responsive behavior when possible
+- **Debounce resize events** to prevent excessive re-rendering
+- **Prefers-reduced-motion** support for accessibility
 
 **Verification Steps:**
-1. Test layout on actual mobile devices, not just browser responsive mode
-2. Verify navigation works with touch gestures and keyboard navigation
-3. Confirm content remains readable and usable at all screen sizes
-4. Check that interactive elements are large enough for touch interaction
+
+1. **Mobile Testing (< 768px):**
+   - Hamburger menu appears and functions correctly
+   - Sidebar slides in from left with overlay backdrop
+   - Tapping overlay or close button closes sidebar
+   - Navigation links close sidebar after selection
+   - Touch targets are at least 44px for accessibility
+
+2. **Tablet Testing (768px - 1024px):**
+   - Header shows search bar
+   - Sidebar still uses overlay pattern
+   - Content has appropriate padding and spacing
+   - Text remains readable at this screen size
+
+3. **Desktop Testing (≥ 1024px):**
+   - Sidebar is always visible (no hamburger menu)
+   - Layout uses full width efficiently
+   - Search bar is prominently displayed
+   - Hover states work correctly on interactive elements
+
+4. **Cross-Device Testing:**
+   - Test on actual devices, not just browser responsive mode
+   - Verify screen rotation handling (portrait/landscape)
+   - Check touch interactions vs mouse interactions
+   - Ensure keyboard navigation works for accessibility
+
+5. **Performance Verification:**
+   - Animations are smooth (60fps) on mobile devices
+   - No layout shift during responsive transitions
+   - Touch interactions feel responsive (< 100ms)
+   - Content loads quickly on slower connections
+
+**Testing Tools:**
+```bash
+# Test on different screen sizes
+# Chrome DevTools: Toggle device toolbar (Cmd+Shift+M)
+# Test these device presets:
+# - iPhone SE (375px)
+# - iPad (768px)
+# - Desktop (1920px)
+
+# Test touch interactions
+# Enable touch simulation in Chrome DevTools
+# Verify 44px minimum touch targets
+```
 
 ## Challenge Extensions
 
