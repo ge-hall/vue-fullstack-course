@@ -1,12 +1,4 @@
----
-title: "Module 4: Backend API Development"
-description: "Build Express.js backend with authentication and API endpoints"
-layout: default
----
-
 # Module 4: Backend API Development
-
-[← Back to Course](../) | [📚 Previous: Module 3](MODULE_03_FORMS_VALIDATION.html) | [📚 Next: Module 5](MODULE_05_NUXT_MIGRATION.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 4-5 days  
 **Branch:** `feature/module-4-backend-api`

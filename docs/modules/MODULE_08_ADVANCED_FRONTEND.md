@@ -1,12 +1,4 @@
----
-title: "Module 8: Advanced Frontend Features"
-description: "Real-time features, drag-and-drop, and PWA capabilities"
-layout: default
----
-
 # Module 8: Advanced Frontend Features
-
-[← Back to Course](../) | [📚 Previous: Module 7](MODULE_07_BETTER_AUTH.html) | [📚 Next: Module 9](MODULE_09_TESTING_QA.html) | [📐 View Mockups](../mockups/MODULE_04_TO_10_MOCKUPS.html)
 
 **Duration:** 4-5 days  
 **Branch:** `feature/module-8-advanced-frontend`  

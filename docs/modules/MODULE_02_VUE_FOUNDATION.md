@@ -1,12 +1,4 @@
----
-title: "Module 2: Frontend Foundation with Vue 3"
-description: "Build the foundation Vue.js application with Tailwind CSS styling and routing system"
-layout: default
----
-
 # Module 2: Frontend Foundation with Vue 3
-
-[← Back to Course](../) | [📚 Previous: Module 1](MODULE_01_SETUP.html) | [📚 Next: Module 3](MODULE_03_FORMS_VALIDATION.html) | [📐 View Mockups](../mockups/MODULE_02_MOCKUPS.html)
 
 **Duration:** 3-4 days  
 **Branch:** `feature/module-2-vue-foundation`
@@ -68,10 +60,10 @@ yarn create vue .
 ```
 
 **Configuration considerations:**
-- Choose TypeScript support (recommended)
-- Include Vue Router
-- Include ESLint for code quality
-- Consider PWA features for future enhancement
+- Choose No for TypeScript support (we'll introduce TypeScript in later modules)
+- Include Vue Router (Yes - essential for SPA navigation)
+- Include ESLint for code quality (Yes)
+- Skip PWA features for now (No)
 
 **Acceptance criteria:**
 - [ ] Vue 3 project successfully created
@@ -84,8 +76,8 @@ yarn create vue .
 
 ### Getting Started
 Before beginning this task, ensure you have:
-- [ ] Node.js 16+ installed (`node --version`)
-- [ ] Module 1 development environment setup completed
+- [ ] Node.js LTS version (20.x or later) installed (`node --version`)
+- [ ] Module 1 development environment setup completed with npm scripts configured
 - [ ] Understanding of Vue 3 vs Vue 2 differences
 - [ ] Basic familiarity with modern JavaScript (ES6+)
 
@@ -94,114 +86,284 @@ Before beginning this task, ensure you have:
 **1. Project Initialization Planning**
 - Navigate to your `client/` directory (or create it if needed)
 - Research the `npm create vue@latest` command options
-- Plan which features to include during scaffold (TypeScript, Router, ESLint)
-- Consider how this integrates with your existing project structure
+- Plan which features to include during scaffold:
+  - TypeScript: No (we'll add it in advanced modules)
+  - Vue Router: Yes (required for navigation)
+  - ESLint: Yes (for code quality)
+  - Prettier: Yes (for consistent formatting)
+  - Vitest: No (we'll add testing later)
+- Consider how this integrates with your existing monorepo structure from Module 1
 
 **2. Vue Project Creation Process**
-- Run the Vue creation command in your client directory
-- Choose appropriate options for a professional application
-- Review generated folder structure and understand each directory's purpose
-- Install dependencies and verify the initial setup works
+- Run the Vue creation command in your client directory:
+  ```bash
+  cd client/
+  npm create vue@latest .
+  ```
+- When prompted, select:
+  - Project name: `taskflow-client`
+  - TypeScript: No
+  - JSX Support: No
+  - Vue Router: Yes
+  - Pinia: No (we'll use simple state management for now)
+  - Vitest: No
+  - End-to-End Testing: No
+  - ESLint: Yes
+  - Prettier: Yes
+- Install dependencies: `npm install`
+- Review generated folder structure:
+  ```
+  client/
+  ├── public/          # Static assets
+  ├── src/
+  │   ├── assets/      # Images, fonts, etc.
+  │   ├── components/  # Vue components
+  │   ├── router/      # Vue Router config
+  │   ├── views/       # Page components
+  │   ├── App.vue      # Root component
+  │   └── main.js      # Application entry point
+  ├── index.html       # HTML template
+  ├── vite.config.js   # Vite configuration
+  └── package.json     # Dependencies and scripts
+  ```
 
 **3. Development Server Configuration**
-- Start the development server and verify hot reload works
-- Test that changes to Vue files reflect immediately in browser
-- Configure any necessary proxy settings for backend integration
-- Verify build process works for production
+- Start the development server:
+  ```bash
+  npm run dev
+  ```
+- The server will start on `http://localhost:5173` (Vite's default port)
+- **Understanding Hot Module Replacement (HMR):**
+  - HMR allows you to see changes instantly without losing application state
+  - When you edit a `.vue` file, only that component reloads
+  - CSS changes apply immediately without page refresh
+  - Try editing `src/App.vue` and watch the browser update automatically
+- Configure Vite for backend integration in `vite.config.js`:
+  ```javascript
+  export default defineConfig({
+    plugins: [vue()],
+    server: {
+      port: 3000,  // Change from default 5173 to 3000
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',  // Your Express backend from Module 1
+          changeOrigin: true,
+          secure: false
+        }
+      }
+    }
+  })
+  ```
+- Test the build process:
+  ```bash
+  npm run build
+  npm run preview  # Preview production build locally
+  ```
 
-**4. Project Integration**
-- Update your root package.json scripts to include client commands
-- Ensure the Vue project works with your existing Git repository
-- Verify environment variables can be accessed from Vue components
-- Test that the project structure supports team development
+**4. Project Integration with Module 1 Setup**
+- Update your root `package.json` scripts to manage both server and client:
+  ```json
+  {
+    "scripts": {
+      "dev": "npm run dev:server & npm run dev:client",
+      "dev:server": "cd server && npm run dev",
+      "dev:client": "cd client && npm run dev",
+      "build": "npm run build:client && npm run build:server",
+      "build:client": "cd client && npm run build",
+      "build:server": "cd server && npm run build",
+      "start": "cd server && npm start"
+    }
+  }
+  ```
+- Set up environment variables for the Vue app:
+  1. Create `client/.env.development`:
+     ```
+     VITE_API_URL=http://localhost:5000/api
+     VITE_APP_NAME=TaskFlow
+     ```
+  2. Access in Vue components:
+     ```javascript
+     const apiUrl = import.meta.env.VITE_API_URL
+     ```
+- Ensure Git integration:
+  - The Vue project should already be part of your monorepo
+  - Check that `client/node_modules` is in `.gitignore`
+  - Verify `client/dist` (build output) is also ignored
+- Test concurrent development:
+  ```bash
+  # From root directory
+  npm run dev  # Should start both server and client
+  ```
 
 **Key Decision Points:**
-- **TypeScript adoption:** Recommended for larger projects and better tooling
-- **Router inclusion:** Essential for SPA navigation (choose yes)
-- **Testing framework:** Consider your team's testing strategy
-- **PWA features:** Can be added later if not immediately needed
+- **TypeScript adoption:** Skip for now to focus on Vue fundamentals - we'll add it in Module 7
+- **Router inclusion:** Essential for SPA navigation (always choose Yes)
+- **State management (Pinia):** Not needed yet - we'll use component state for now
+- **Testing framework:** Skip for initial setup - we'll add testing in Module 6
+- **Code quality tools:** Always include ESLint and Prettier for consistent code
 
 **Verification Steps:**
-1. Confirm `npm run dev` starts development server successfully
-2. Test that editing a Vue component triggers hot reload
-3. Verify build command (`npm run build`) creates production-ready files
-4. Check that the project integrates with your existing development workflow
+1. Confirm `npm run dev` starts development server on port 3000
+2. Test Hot Module Replacement:
+   - Edit text in `src/App.vue` - should update instantly
+   - Change styles - should apply without refresh
+   - Add a new component - should hot reload
+3. Verify build process:
+   - Run `npm run build` - should create `dist/` folder
+   - Check `dist/` contains optimized HTML, JS, and CSS files
+   - Run `npm run preview` to test production build
+4. Test monorepo integration:
+   - From root: `npm run dev` starts both server and client
+   - API proxy works: `fetch('/api/health')` reaches your Express server
+   - Environment variables load correctly
 
 ---
 
 ### Task 2.2: Tailwind CSS Integration
-**Objective:** Configure Tailwind CSS for utility-first styling approach
+**Objective:** Configure Tailwind CSS 4 for utility-first styling with Vite integration
 
 **What you need to accomplish:**
-- Install and configure Tailwind CSS
-- Set up purging for production builds
-- Configure custom design tokens
-- Create base styles and utilities
+- Install Tailwind CSS 4 with the new Vite plugin
+- Configure Tailwind for Vue.js components
+- Set up custom design tokens for TaskFlow
+- Test utility classes and responsive design
 
 **Documentation to consult:**
-- [Tailwind CSS Installation](https://tailwindcss.com/docs/installation)
-- [Tailwind with Vite](https://tailwindcss.com/docs/guides/vite)
-- [Tailwind Configuration](https://tailwindcss.com/docs/configuration)
+- [Tailwind CSS with Vite](https://tailwindcss.com/docs/installation/using-vite)
+- [Tailwind CSS Configuration](https://tailwindcss.com/docs/configuration)
+- [Tailwind CSS Framework Guide for Vue](https://tailwindcss.com/docs/installation/framework-guides)
 
-**Installation steps to research:**
+**Step-by-step installation for Tailwind CSS 4:**
+
+**1. Install Tailwind CSS 4 with Vite Plugin**
 ```bash
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
+# In your client/ directory
+cd client/
+npm install tailwindcss @tailwindcss/vite
 ```
 
-**Configuration hints:**
-- Set up content paths for Vue files
-- Configure custom colors for your app theme
-- Add custom spacing and typography scales
-- Set up dark mode support (optional)
+**Why the new approach?**
+- **@tailwindcss/vite**: The new official Vite plugin for Tailwind CSS 4
+- **No PostCSS setup needed**: The Vite plugin handles everything automatically
+- **Better performance**: Native Vite integration with faster builds
+- **Simplified configuration**: Less setup compared to the traditional PostCSS approach
 
-**Custom theme example:**
+**2. Configure Vite Plugin**
+Update your `client/vite.config.js` to include the Tailwind plugin:
 ```javascript
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          900: '#1e3a8a',
-        }
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),  // Add Tailwind CSS plugin
+  ],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
       }
     }
   }
+})
+```
+
+**3. Import Tailwind CSS**
+Update your main CSS file `client/src/style.css` (or create it):
+```css
+@import "tailwindcss";
+
+/* Custom TaskFlow styles */
+:root {
+  --taskflow-primary: #2563eb;
+  --taskflow-secondary: #64748b;
+  --taskflow-success: #059669;
+  --taskflow-warning: #d97706;
+  --taskflow-error: #dc2626;
+}
+
+/* Custom component styles can go here */
+```
+
+**4. Import CSS in Your Vue App**
+Ensure the CSS is imported in `client/src/main.js`:
+```javascript
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import App from './App.vue'
+import './style.css'  // Import Tailwind CSS
+
+// Router setup...
+const app = createApp(App)
+app.use(router)
+app.mount('#app')
+```
+
+**5. Configure Tailwind (Optional)**
+Create `client/tailwind.config.js` for customization:
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'taskflow': {
+          primary: '#2563eb',
+          secondary: '#64748b',
+          accent: '#7c3aed',
+          success: '#059669',
+          warning: '#d97706',
+          error: '#dc2626',
+        }
+      },
+      fontFamily: {
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
 }
 ```
 
 **Acceptance criteria:**
-- [ ] Tailwind CSS properly installed and configured
-- [ ] Styles compile without errors
-- [ ] Custom design tokens defined
-- [ ] Purging works in production build
-- [ ] Basic utility classes functional
+- [ ] Tailwind CSS 4 with Vite plugin properly installed
+- [ ] Vite configuration updated with @tailwindcss/vite plugin
+- [ ] Styles compile without errors using new import syntax
+- [ ] TaskFlow custom design tokens defined
+- [ ] Utility classes work in Vue components
+- [ ] Hot reloading works with CSS changes
 
 ## Implementation Guidance
 
 ### Getting Started
 Before beginning this task, ensure you have:
-- [ ] Vue 3 project successfully running
+- [ ] Vue 3 project successfully running from Task 2.1
 - [ ] Understanding of utility-first CSS approach
-- [ ] Knowledge of PostCSS and how it works with Vite
-- [ ] Basic familiarity with CSS custom properties
+- [ ] Familiarity with Vite and how plugins work
+- [ ] Basic knowledge of CSS imports and custom properties
 
 ### Step-by-Step Implementation Approach
 
-**1. Tailwind Installation and Setup**
-- Install Tailwind CSS and its peer dependencies using npm
-- Generate Tailwind and PostCSS configuration files
-- Understand how Tailwind integrates with Vite's build process
-- Configure content paths to include all Vue files for proper purging
+**1. Tailwind 4 Installation with Vite Plugin**
+- Install the new `@tailwindcss/vite` plugin (no PostCSS setup required)
+- Configure the Vite plugin in your config file
+- Understand how the new plugin simplifies the build process
+- Import Tailwind using the new `@import "tailwindcss"` syntax
 
-**2. Configuration and Customization**
-- Set up your main CSS file with Tailwind directives
-- Configure content paths in tailwind.config.js for proper purging
-- Define custom color palette that reflects your application's brand
-- Set up custom spacing, typography, and component variants
+**2. TaskFlow Design System Setup**
+- Import Tailwind in your main CSS file using the new syntax
+- Define TaskFlow-specific color palette and design tokens
+- Set up custom CSS variables for consistent theming
+- Configure content paths for Vue file detection (optional with new plugin)
 
 **3. Integration with Vue Components**
 - Import Tailwind styles in your main application entry point
@@ -209,66 +371,417 @@ Before beginning this task, ensure you have:
 - Understand how to use Tailwind classes with dynamic Vue styling
 - Configure any necessary CSS-in-JS patterns for dynamic styles
 
-**4. Production Optimization**
-- Verify Tailwind's purging removes unused CSS in production builds
-- Test that custom configuration works in both development and production
-- Ensure build sizes are optimized and performant
-- Set up any additional PostCSS plugins if needed
+**4. Production Optimization and Testing**
+- Verify Tailwind's automatic CSS optimization in production builds
+- Test that custom TaskFlow colors work in both development and production
+- Ensure build sizes are optimized with the new Vite plugin
+- Confirm hot reloading works seamlessly during development
 
 **Key Decision Points:**
-- **Custom theme extent:** Decide how much to customize vs. using defaults
-- **Component abstraction:** Plan when to create CSS components vs. using utilities
-- **Dark mode strategy:** Consider if you need dark mode support now or later
-- **Design system integration:** Plan how Tailwind fits with your design tokens
+- **Vite plugin vs PostCSS:** Using the new @tailwindcss/vite plugin is recommended for better performance
+- **TaskFlow design system:** Establish consistent colors and spacing for the application
+- **Component patterns:** Plan when to use utility classes vs custom CSS components
+- **Dark mode planning:** Consider TaskFlow's future dark mode requirements
 
 **Verification Steps:**
-1. Test that utility classes like `bg-blue-500` and `text-center` work in components
-2. Verify your custom colors appear correctly when used
-3. Confirm production build only includes used CSS classes
-4. Check that responsive classes work at different screen sizes
+1. Test basic utility classes in a Vue component:
+   ```vue
+   <template>
+     <div class="bg-taskflow-primary text-white p-4 rounded-lg">
+       <h1 class="text-2xl font-bold">TaskFlow Header</h1>
+       <p class="text-sm opacity-90">Testing Tailwind CSS 4 integration</p>
+     </div>
+   </template>
+   ```
+2. Verify responsive classes work: `md:text-lg lg:text-xl`
+3. Test custom colors: `bg-taskflow-primary`, `text-taskflow-secondary`
+4. Confirm build optimization: run `npm run build` and check CSS bundle size
+5. Test hot reloading: change classes and verify instant updates
 
 ---
 
 ### Task 2.3: Vue Router Configuration
-**Objective:** Set up client-side routing for single-page application navigation
+**Objective:** Set up client-side routing for single-page application navigation with TaskFlow routes
 
 **What you need to accomplish:**
-- Configure Vue Router with modern setup
-- Create route definitions for main application areas
-- Set up nested routing structure
-- Implement navigation guards (basic)
+- Configure Vue Router 4 with modern Composition API setup
+- Create route definitions for TaskFlow application areas
+- Build view components for each route
+- Set up nested routing structure for complex features
+- Implement basic navigation guards for future authentication
+- Configure route metadata and navigation
 
 **Documentation to consult:**
-- [Vue Router Installation](https://router.vuejs.org/installation.html)
-- [Vue Router Guide](https://router.vuejs.org/guide/)
+- [Vue Router 4 Installation](https://router.vuejs.org/installation.html)
+- [Vue Router 4 Guide](https://router.vuejs.org/guide/)
+- [Composition API with Router](https://router.vuejs.org/guide/advanced/composition-api.html)
 - [Navigation Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html)
 
-**Routes to plan for:**
-```javascript
-// Pseudocode for route structure
-const routes = [
-  { path: '/', component: 'Dashboard' },
-  { path: '/login', component: 'Login' },
-  { path: '/register', component: 'Register' },
-  { path: '/projects', component: 'Projects' },
-  { path: '/projects/:id', component: 'ProjectDetail' },
-  { path: '/profile', component: 'Profile' },
-  // Catch-all route for 404
-]
-```
-
-**Navigation guard considerations:**
-- Authentication checks
-- Route-based permissions
-- Loading states
-- Redirect logic
-
 **Acceptance criteria:**
-- [ ] Vue Router properly configured
-- [ ] All planned routes defined
+- [ ] Vue Router 4 properly configured with history mode
+- [ ] All planned routes defined with proper metadata
+- [ ] View components created for each route
 - [ ] Navigation between routes works
 - [ ] URL changes reflect in browser
 - [ ] Basic navigation guards implemented
+- [ ] 404 page displays for invalid routes
+
+## Implementation Guidance
+
+### Getting Started
+Before beginning this task, ensure you have:
+- [ ] Vue Router included during project initialization
+- [ ] Understanding of client-side routing concepts
+- [ ] Knowledge of Vue 3 Composition API
+- [ ] Basic familiarity with route metadata and guards
+
+### Step-by-Step Implementation Approach
+
+**1. Verify Router Installation**
+Since you selected Vue Router during project creation, verify it's properly installed:
+```bash
+# Check if Vue Router is in package.json
+cat client/package.json | grep vue-router
+```
+
+If not installed:
+```bash
+cd client/
+npm install vue-router@4
+```
+
+**2. Router Configuration Setup**
+Examine your existing `client/src/router/index.js` and update it:
+```javascript
+import { createRouter, createWebHistory } from 'vue-router'
+
+// Import view components (we'll create these next)
+import HomeView from '../views/HomeView.vue'
+import DashboardView from '../views/DashboardView.vue'
+import ProjectsView from '../views/ProjectsView.vue'
+import ProjectDetailView from '../views/ProjectDetailView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import RegisterView from '../views/auth/RegisterView.vue'
+import ProfileView from '../views/ProfileView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
+
+const routes = [
+  // Public routes
+  {
+    path: '/',
+    name: 'Home',
+    component: HomeView,
+    meta: {
+      title: 'TaskFlow - Collaborative Task Management',
+      requiresAuth: false
+    }
+  },
+  
+  // Authentication routes
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginView,
+    meta: {
+      title: 'Login - TaskFlow',
+      requiresAuth: false,
+      redirectIfAuthenticated: true
+    }
+  },
+  {
+    path: '/register',
+    name: 'Register', 
+    component: RegisterView,
+    meta: {
+      title: 'Register - TaskFlow',
+      requiresAuth: false,
+      redirectIfAuthenticated: true
+    }
+  },
+  
+  // Protected routes (require authentication)
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardView,
+    meta: {
+      title: 'Dashboard - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/projects',
+    name: 'Projects',
+    component: ProjectsView,
+    meta: {
+      title: 'Projects - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/projects/:id',
+    name: 'ProjectDetail',
+    component: ProjectDetailView,
+    meta: {
+      title: 'Project Details - TaskFlow',
+      requiresAuth: true
+    },
+    props: true // Pass route params as props
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfileView,
+    meta: {
+      title: 'Profile - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  
+  // 404 catch-all route
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFoundView,
+    meta: {
+      title: '404 - Page Not Found'
+    }
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+  // Scroll behavior for better UX
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
+})
+
+// Global navigation guard (basic setup for future authentication)
+router.beforeEach((to, from, next) => {
+  // Update document title
+  document.title = to.meta.title || 'TaskFlow'
+  
+  // For now, just proceed (we'll add auth logic in later modules)
+  next()
+})
+
+export default router
+```
+
+**3. Create View Components**
+
+Create the views folder structure and components:
+```bash
+# Create views directory structure
+mkdir -p client/src/views/auth
+```
+
+**HomeView.vue** (Landing page):
+```vue
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 py-16">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold text-gray-900 mb-6">
+          Welcome to <span class="text-taskflow-primary">TaskFlow</span>
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Streamline your team's productivity with our collaborative task management platform.
+          Organize projects, assign tasks, and track progress in real-time.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="space-x-4">
+          <router-link 
+            to="/register" 
+            class="bg-taskflow-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Get Started Free
+          </router-link>
+          <router-link 
+            to="/login" 
+            class="bg-white text-taskflow-primary px-8 py-3 rounded-lg font-semibold border border-taskflow-primary hover:bg-blue-50 transition-colors"
+          >
+            Sign In
+          </router-link>
+        </div>
+      </div>
+      
+      <!-- Features Preview -->
+      <div class="mt-16 grid md:grid-cols-3 gap-8">
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">📋</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Project Management</h3>
+          <p class="text-gray-600">Organize tasks into projects with customizable workflows</p>
+        </div>
+        
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">👥</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Team Collaboration</h3>
+          <p class="text-gray-600">Work together seamlessly with real-time updates</p>
+        </div>
+        
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">📊</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Progress Tracking</h3>
+          <p class="text-gray-600">Monitor project progress with intuitive dashboards</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// This page doesn't need any reactive state yet
+// We'll add analytics tracking and API calls in later modules
+</script>
+```
+
+**DashboardView.vue** (Main app dashboard):
+```vue
+<template>
+  <div class="p-6">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <p class="text-gray-600 mt-2">Welcome back! Here's what's happening with your projects.</p>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Active Projects</h3>
+        <p class="text-2xl font-bold text-taskflow-primary mt-2">12</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Tasks Completed</h3>
+        <p class="text-2xl font-bold text-taskflow-success mt-2">48</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Team Members</h3>
+        <p class="text-2xl font-bold text-taskflow-secondary mt-2">8</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Due This Week</h3>
+        <p class="text-2xl font-bold text-taskflow-warning mt-2">6</p>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+      <div class="space-x-4">
+        <router-link 
+          to="/projects" 
+          class="bg-taskflow-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          View All Projects
+        </router-link>
+        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+          Create New Task
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Dashboard logic will be added in later modules
+// For now, this is a static layout to test routing
+</script>
+```
+
+**Basic Auth Views** (LoginView.vue and RegisterView.vue):
+```vue
+<!-- client/src/views/auth/LoginView.vue -->
+<template>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8 p-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-900">Sign in to TaskFlow</h2>
+        <p class="mt-2 text-gray-600">Access your projects and collaborate with your team</p>
+      </div>
+      
+      <!-- Login form will be implemented in Module 3 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <p class="text-center text-gray-500">Login form will be implemented in Module 3</p>
+        <div class="mt-4 text-center">
+          <router-link 
+            to="/dashboard" 
+            class="text-taskflow-primary hover:underline"
+          >
+            Continue to Dashboard (Demo)
+          </router-link>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Login logic will be implemented in Module 3
+</script>
+```
+
+**Other View Components** (create similar basic structures):
+- `RegisterView.vue`
+- `ProjectsView.vue` 
+- `ProjectDetailView.vue`
+- `ProfileView.vue`
+- `NotFoundView.vue`
+
+**4. Navigation Guards Setup**
+
+The router already includes a basic navigation guard. Here's what it does:
+```javascript
+// Global navigation guard (basic setup for future authentication)
+router.beforeEach((to, from, next) => {
+  // Update document title based on route meta
+  document.title = to.meta.title || 'TaskFlow'
+  
+  // TODO: Add authentication checks in Module 4
+  // For now, just proceed to the route
+  next()
+})
+```
+
+**Future authentication logic** (will be implemented in Module 4):
+```javascript
+// Example of what we'll add later:
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = checkAuthStatus() // Will implement later
+  
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.meta.redirectIfAuthenticated && isAuthenticated) {
+    next('/dashboard')
+  } else {
+    next()
+  }
+})
+```
+
+**Acceptance criteria:**
+- [ ] Vue Router 4 properly configured with history mode
+- [ ] All TaskFlow routes defined with proper metadata
+- [ ] View components created for each route
+- [ ] Navigation between routes works smoothly
+- [ ] URL changes reflect in browser and are bookmarkable
+- [ ] Basic navigation guards implemented for title updates
+- [ ] Router-link components work correctly
+- [ ] 404 page displays for invalid routes
 
 ## Implementation Guidance
 
@@ -282,28 +795,28 @@ Before beginning this task, ensure you have:
 ### Step-by-Step Implementation Approach
 
 **1. Router Configuration Setup**
-- Examine the generated router configuration if included during project setup
-- Understand the difference between hash mode and history mode
-- Configure the router with your preferred mode and base URL
-- Plan your route hierarchy and nested route relationships
+- Examine the generated router configuration from Vue project creation
+- Use history mode (createWebHistory) for clean URLs without # symbol
+- Configure router with proper base URL and scroll behavior
+- Plan route hierarchy: public routes, auth routes, protected routes
 
 **2. Route Definition and Components**
-- Create view components for each main route
-- Define route objects with path, component, and metadata
-- Set up nested routes for complex application areas
-- Plan for dynamic routes with parameters (e.g., `/projects/:id`)
+- Create comprehensive view components for TaskFlow application
+- Define route objects with path, component, meta properties, and names
+- Use route metadata for titles, authentication requirements, and other flags
+- Implement dynamic routes with parameters and props passing
 
-**3. Navigation Implementation**
-- Use router-link components for declarative navigation
-- Implement programmatic navigation with useRouter composable
-- Set up navigation guards for authentication and authorization
-- Handle route changes and loading states appropriately
+**3. Navigation Implementation and Testing**
+- Use router-link components for declarative navigation with proper styling
+- Test programmatic navigation with useRouter composable in components
+- Set up basic navigation guards for title updates and future auth logic
+- Implement proper scroll behavior and route transition handling
 
-**4. Advanced Router Features**
-- Configure route metadata for titles, authentication requirements
-- Set up lazy loading for route components
-- Implement proper error handling for failed route navigation
-- Add transition animations between route changes
+**4. Router Enhancement and Optimization**
+- Configure comprehensive route metadata for SEO and auth
+- Plan for lazy loading implementation in future performance optimization
+- Implement proper 404 error handling with custom NotFound component
+- Prepare structure for route transition animations
 
 **Key Decision Points:**
 - **History mode vs. hash mode:** History mode preferred for SEO, hash mode for simple hosting
@@ -312,10 +825,29 @@ Before beginning this task, ensure you have:
 - **Navigation guard strategy:** Plan authentication and permission checking approach
 
 **Verification Steps:**
-1. Test that all routes navigate correctly via URL and router-link
-2. Verify browser back/forward buttons work as expected
-3. Confirm route parameters are passed correctly to components
-4. Check that navigation guards prevent/allow access appropriately
+1. **Test route navigation:**
+   - Navigate to each route via URL bar: `/`, `/login`, `/dashboard`, etc.
+   - Click router-link components and verify smooth navigation
+   - Test browser back/forward buttons work correctly
+
+2. **Verify dynamic routes:**
+   - Navigate to `/projects/123` and confirm ProjectDetail component loads
+   - Check that route parameters are accessible in the component
+   - Test different project IDs work correctly
+
+3. **Check route metadata:**
+   - Verify page titles update correctly when navigating
+   - Confirm document.title changes reflect route meta.title
+
+4. **Test error handling:**
+   - Navigate to non-existent route like `/invalid-page`
+   - Verify 404 NotFound component displays
+   - Check that invalid routes don't break the application
+
+5. **Validate router-link styling:**
+   - Ensure navigation links have proper hover states
+   - Verify active route styling (if implemented)
+   - Test responsive navigation behavior
 
 ---
 
@@ -354,23 +886,10 @@ client/src/
 └── utils/             # Utility functions
 ```
 
-**Base component example (BaseButton.vue):**
-```vue
-<template>
-  <button
-    :class="buttonClasses"
-    :disabled="disabled"
-    @click="$emit('click', $event)"
-  >
-    <slot />
-  </button>
-</template>
-
-<script setup>
-// Define props, emits, and computed classes
-// Use Tailwind for styling variants
-</script>
-```
+**Approach:**
+- Create one complete base component with full implementation
+- Provide guidance and patterns for remaining components
+- Focus on reusability and consistency
 
 **Acceptance criteria:**
 - [ ] Component folder structure created
@@ -390,41 +909,985 @@ Before beginning this task, ensure you have:
 
 ### Step-by-Step Implementation Approach
 
-**1. Component Architecture Planning**
-- Research Vue 3 component organization best practices
-- Plan your component hierarchy from atomic to complex components
-- Decide on naming conventions for different component types
-- Consider reusability and maintainability in your structure
+**1. Create Component Folder Structure**
+First, create the organized folder structure:
+```bash
+# From client/src directory
+mkdir -p components/base
+mkdir -p components/layout
+mkdir -p components/features/auth
+mkdir -p components/features/projects
+mkdir -p components/features/dashboard
+mkdir -p composables
+mkdir -p utils
+```
 
-**2. Base Component Development**
-- Create foundational components that will be reused throughout the app
-- Focus on components like buttons, inputs, modals, and cards
-- Use TypeScript interfaces or PropType definitions for prop validation
-- Implement proper event emission patterns for component communication
+**Component Architecture Principles:**
+- **Base components**: Generic, reusable UI elements (buttons, inputs, modals)
+- **Layout components**: Application structure (header, sidebar, footer)
+- **Feature components**: Business logic specific components (project cards, task lists)
+- **Composables**: Reusable Vue 3 composition functions
+- **Utils**: Pure JavaScript utility functions
 
-**3. Layout Component Structure**
-- Design components that handle application layout and navigation
-- Create header, sidebar, footer, and main content area components
-- Implement responsive behavior within layout components
-- Set up proper slot usage for flexible content areas
+**2. Complete BaseButton Component Implementation**
 
-**4. Composition API Integration**
-- Use script setup syntax for cleaner component code
-- Create reusable composables for shared logic
-- Implement reactive state management within components
-- Set up proper lifecycle hook usage for component behavior
+Create `client/src/components/base/BaseButton.vue` with full implementation:
+
+```vue
+<template>
+  <button
+    :type="type"
+    :disabled="disabled"
+    :class="buttonClasses"
+    @click="handleClick"
+  >
+    <!-- Loading spinner slot -->
+    <span v-if="loading" class="mr-2">
+      <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </span>
+    
+    <!-- Icon slot (optional) -->
+    <slot name="icon" />
+    
+    <!-- Button text content -->
+    <slot />
+  </button>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+
+// Define component props with validation
+const props = defineProps({
+  // Button variants for different use cases
+  variant: {
+    type: String,
+    default: 'primary',
+    validator: (value) => ['primary', 'secondary', 'outline', 'ghost', 'danger'].includes(value)
+  },
+  // Size variations
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg', 'xl'].includes(value)
+  },
+  // Button type for forms
+  type: {
+    type: String,
+    default: 'button',
+    validator: (value) => ['button', 'submit', 'reset'].includes(value)
+  },
+  // Disabled state
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  // Loading state with spinner
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  // Full width button
+  fullWidth: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Define events this component can emit
+const emit = defineEmits(['click'])
+
+// Computed class string using Tailwind CSS
+const buttonClasses = computed(() => {
+  const classes = [
+    // Base button styles - consistent across all variants
+    'inline-flex', 'items-center', 'justify-center',
+    'font-medium', 'rounded-lg', 'transition-all', 'duration-200',
+    'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2'
+  ]
+  
+  // Size-specific padding and text sizing
+  const sizeClasses = {
+    sm: ['px-3', 'py-1.5', 'text-sm'],
+    md: ['px-4', 'py-2', 'text-sm'], 
+    lg: ['px-6', 'py-3', 'text-base'],
+    xl: ['px-8', 'py-4', 'text-lg']
+  }
+  
+  // Variant-specific colors and styling
+  const variantClasses = {
+    primary: [
+      'bg-taskflow-primary', 'text-white', 'border-transparent',
+      'hover:bg-blue-700', 'focus:ring-blue-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    secondary: [
+      'bg-taskflow-secondary', 'text-white', 'border-transparent',
+      'hover:bg-gray-600', 'focus:ring-gray-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    outline: [
+      'bg-transparent', 'text-taskflow-primary', 'border', 'border-taskflow-primary',
+      'hover:bg-taskflow-primary', 'hover:text-white', 'focus:ring-blue-500',
+      'disabled:border-gray-300', 'disabled:text-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    ghost: [
+      'bg-transparent', 'text-taskflow-primary', 'border-transparent',
+      'hover:bg-blue-50', 'focus:ring-blue-500',
+      'disabled:text-gray-300', 'disabled:cursor-not-allowed'
+    ],
+    danger: [
+      'bg-taskflow-error', 'text-white', 'border-transparent',
+      'hover:bg-red-700', 'focus:ring-red-500',
+      'disabled:bg-gray-300', 'disabled:cursor-not-allowed'
+    ]
+  }
+  
+  // Add size classes
+  classes.push(...sizeClasses[props.size])
+  
+  // Add variant classes
+  classes.push(...variantClasses[props.variant])
+  
+  // Add full width class if needed
+  if (props.fullWidth) {
+    classes.push('w-full')
+  }
+  
+  // Add loading state classes
+  if (props.loading) {
+    classes.push('cursor-wait')
+  }
+  
+  return classes.join(' ')
+})
+
+// Handle click events
+const handleClick = (event) => {
+  // Don't emit click if button is disabled or loading
+  if (props.disabled || props.loading) {
+    event.preventDefault()
+    return
+  }
+  
+  emit('click', event)
+}
+</script>
+```
+
+**Understanding the Computed Classes Pattern:**
+
+The `buttonClasses` computed property demonstrates a fundamental Vue.js best practice for dynamic class management. This pattern is widely used throughout Vue.js applications and is considered the standard approach for complex conditional styling.
+
+**Why Use Computed Properties for Classes?**
+
+**1. Performance Benefits:**
+```javascript
+// ❌ BAD: Method approach (recalculates every render)
+methods: {
+  getButtonClasses() {
+    return ['btn', this.variant === 'primary' ? 'btn-primary' : 'btn-secondary']
+  }
+}
+
+// ❌ BAD: Inline logic (hard to maintain, recalculates every render)
+<button :class="`btn ${variant === 'primary' ? 'btn-primary' : 'btn-secondary'}`">
+
+// ✅ GOOD: Computed property (cached, only recalculates when dependencies change)
+computed: {
+  buttonClasses() {
+    return ['btn', this.variant === 'primary' ? 'btn-primary' : 'btn-secondary']
+  }
+}
+```
+
+**2. Reactivity Benefits:**
+- **Automatic dependency tracking**: Vue automatically tracks that `buttonClasses` depends on `variant`, `size`, `disabled`, etc.
+- **Efficient updates**: Only recalculates when actual dependencies change, not on every render
+- **Lazy evaluation**: Only computes the value when it's actually needed in the template
+
+**3. Code Organization Benefits:**
+- **Separation of concerns**: Class logic is separated from template markup
+- **Maintainability**: All styling logic is centralized in one location
+- **Readability**: Template stays clean with simple `:class="buttonClasses"`
+- **Testability**: Class logic can be unit tested independently
+
+**4. Vue.js Official Pattern:**
+This pattern appears throughout Vue.js core examples:
+- **Data Grid**: Uses computed for `filteredData` based on search and sort
+- **TodoMVC**: Uses computed for `filteredTodos` and `remainingText`
+- **Radar Chart**: Uses computed for dynamic positioning calculations
+
+**Real-World Usage Considerations:**
+
+**When to use computed classes:**
+- Complex conditional logic (3+ conditions)
+- Multiple prop dependencies
+- Reusable components with many variants
+- Performance-critical components used frequently
+
+**When simpler approaches work:**
+- Simple boolean conditions: `:class="{ active: isActive }"`
+- Single prop dependency: `:class="variant"`
+- One-time use components with minimal logic
+
+**Component Library Benefits:**
+For base components like `BaseButton`, computed classes provide:
+- **Consistency**: All buttons use identical class calculation logic
+- **Performance**: Efficient for components rendered many times per page
+- **Extensibility**: Easy to add new variants without touching templates
+- **Debugging**: Class logic can be inspected and tested in isolation
+
+---
+
+**Tailwind CSS Classes Explained:**
+
+**Base Layout Classes:**
+- `inline-flex items-center justify-center`: Creates a flexible button that centers content horizontally and vertically
+- `font-medium rounded-lg`: Medium font weight with rounded corners for modern appearance
+- `transition-all duration-200`: Smooth transitions for hover and focus states
+
+**Focus & Accessibility:**
+- `focus:outline-none focus:ring-2 focus:ring-offset-2`: Removes default outline and adds custom focus ring for better accessibility
+- `focus:ring-blue-500`: Blue focus ring color that matches the primary color
+
+**Responsive Sizing:**
+- `px-4 py-2 text-sm` (md): Horizontal padding 16px, vertical padding 8px, small text
+- `px-6 py-3 text-base` (lg): Larger padding and base text size for more prominent buttons
+
+**State Management:**
+- `hover:bg-blue-700`: Darker background on hover for primary variant
+- `disabled:bg-gray-300 disabled:cursor-not-allowed`: Gray background and cursor change for disabled state
+- `w-full`: Full width when `fullWidth` prop is true
+
+**3. Understanding the "Base" Component Architecture**
+
+**Why "Base" Components?**
+The "Base" prefix indicates these are **foundational, generic components** that serve as building blocks for your application:
+
+- **BaseButton** → Generic button that can be styled for any use case
+- **TaskButton** → Specific button for task-related actions (would extend BaseButton)
+- **ProjectCard** → Specific card for project display (would use BaseCard internally)
+
+**Component Hierarchy Strategy:**
+```
+Base Components (Generic)
+├── BaseButton.vue     # Any button in the app
+├── BaseInput.vue      # Any form input
+├── BaseModal.vue      # Any modal dialog
+└── BaseCard.vue       # Any card container
+
+Feature Components (Specific)
+├── TaskCard.vue       # Uses BaseCard + task-specific logic
+├── LoginForm.vue      # Uses BaseInput + BaseButton + auth logic
+└── ProjectModal.vue   # Uses BaseModal + project-specific content
+```
+
+**Benefits of This Approach:**
+- **Consistency**: All buttons look and behave the same way
+- **Maintainability**: Change button styles in one place
+- **Reusability**: Base components work anywhere in the app
+- **Testability**: Test complex logic separately from UI components
+
+---
+
+**3. Create Remaining Base Components (Detailed Implementation)**
+
+### BaseInput.vue - Form Input Component
+
+**Purpose**: A flexible input component that handles all HTML input types and form validation states.
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseInput.vue`:
+
+```vue
+<template>
+  <div class="space-y-1">
+    <!-- Label (optional) -->
+    <label 
+      v-if="label" 
+      :for="inputId" 
+      class="block text-sm font-medium text-gray-700"
+    >
+      {{ label }}
+      <span v-if="required" class="text-red-500 ml-1">*</span>
+    </label>
+    
+    <!-- Input field -->
+    <input
+      :id="inputId"
+      :type="type"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      :required="required"
+      :class="inputClasses"
+      :value="modelValue"
+      @input="handleInput"
+      @blur="handleBlur"
+      @focus="handleFocus"
+    >
+    
+    <!-- Error message -->
+    <p 
+      v-if="error" 
+      class="text-sm text-red-600"
+    >
+      {{ error }}
+    </p>
+    
+    <!-- Help text -->
+    <p 
+      v-if="help && !error" 
+      class="text-sm text-gray-500"
+    >
+      {{ help }}
+    </p>
+  </div>
+</template>
+
+<script setup>
+import { computed, ref } from 'vue'
+
+// Generate unique ID for accessibility
+const inputId = ref(`input-${Math.random().toString(36).substr(2, 9)}`)
+
+// Props that map to HTML input attributes
+const props = defineProps({
+  // HTML input type attribute
+  type: {
+    type: String,
+    default: 'text',
+    validator: (value) => [
+      'text', 'email', 'password', 'number', 'tel', 
+      'url', 'search', 'date', 'time', 'datetime-local'
+    ].includes(value)
+  },
+  
+  // Vue v-model binding
+  modelValue: {
+    type: [String, Number],
+    default: ''
+  },
+  
+  // HTML attributes
+  placeholder: String,
+  disabled: Boolean,
+  required: Boolean,
+  
+  // Component-specific props
+  label: String,
+  error: String,
+  help: String,
+  
+  // Size variants
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg'].includes(value)
+  }
+})
+
+// Vue 3 v-model emit
+const emit = defineEmits(['update:modelValue', 'blur', 'focus'])
+
+// Computed classes based on state
+const inputClasses = computed(() => {
+  const baseClasses = [
+    'block', 'w-full', 'border', 'rounded-lg',
+    'transition-colors', 'duration-200',
+    'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-1'
+  ]
+  
+  // Size-specific classes
+  const sizeClasses = {
+    sm: ['px-3', 'py-1.5', 'text-sm'],
+    md: ['px-3', 'py-2', 'text-sm'],
+    lg: ['px-4', 'py-3', 'text-base']
+  }
+  
+  // State-specific classes
+  if (props.error) {
+    baseClasses.push(
+      'border-red-500', 'text-red-900', 'placeholder-red-400',
+      'focus:ring-red-500', 'focus:border-red-500'
+    )
+  } else if (props.disabled) {
+    baseClasses.push(
+      'bg-gray-50', 'border-gray-200', 'text-gray-500', 
+      'cursor-not-allowed'
+    )
+  } else {
+    baseClasses.push(
+      'border-gray-300', 'text-gray-900', 'placeholder-gray-400',
+      'focus:ring-taskflow-primary', 'focus:border-taskflow-primary',
+      'hover:border-gray-400'
+    )
+  }
+  
+  baseClasses.push(...sizeClasses[props.size])
+  return baseClasses.join(' ')
+})
+
+// Event handlers
+const handleInput = (event) => {
+  emit('update:modelValue', event.target.value)
+}
+
+const handleBlur = (event) => {
+  emit('blur', event)
+}
+
+const handleFocus = (event) => {
+  emit('focus', event)
+}
+</script>
+```
+
+**Props to HTML Attribute Mapping:**
+- `type` → `<input type="text|email|password|etc">` 
+- `placeholder` → `<input placeholder="Enter text...">`
+- `disabled` → `<input disabled>`
+- `required` → `<input required>`
+- `modelValue` → Vue's v-model system for two-way binding
+
+**Usage Examples:**
+```vue
+<!-- Basic text input -->
+<BaseInput 
+  v-model="username" 
+  type="text" 
+  label="Username" 
+  placeholder="Enter your username" 
+/>
+
+<!-- Email input with validation -->
+<BaseInput 
+  v-model="email" 
+  type="email" 
+  label="Email Address" 
+  :error="emailError" 
+  required 
+/>
+
+<!-- Password input -->
+<BaseInput 
+  v-model="password" 
+  type="password" 
+  label="Password" 
+  help="Must be at least 8 characters" 
+/>
+```
+
+---
+
+### BaseModal.vue - Modal Dialog Component
+
+**Purpose**: A flexible modal component that renders outside the normal DOM hierarchy using Vue's Teleport feature.
+
+**What is Teleport?**
+Teleport allows you to render a component's template in a different part of the DOM tree, which is essential for modals because:
+- **Z-index issues**: Modals need to appear above all other content
+- **Accessibility**: Screen readers need modals in the document root
+- **Styling control**: Easier to manage backdrop and positioning
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseModal.vue`:
+
+```vue
+<template>
+  <!-- Teleport renders this outside the component tree -->
+  <Teleport to="body">
+    <!-- Modal wrapper - only renders when show is true -->
+    <div
+      v-if="show"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="titleId"
+    >
+      <!-- Backdrop -->
+      <div 
+        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        @click="handleBackdropClick"
+      ></div>
+      
+      <!-- Modal container -->
+      <div class="flex min-h-full items-center justify-center p-4">
+        <!-- Modal content -->
+        <div 
+          :class="modalClasses"
+          class="relative bg-white rounded-lg shadow-xl transform transition-all"
+          @click.stop
+        >
+          <!-- Header -->
+          <div v-if="title || $slots.header" class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <!-- Title -->
+              <h3 
+                :id="titleId" 
+                class="text-lg font-semibold text-gray-900"
+              >
+                <slot name="header">{{ title }}</slot>
+              </h3>
+              
+              <!-- Close button -->
+              <button
+                @click="handleClose"
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close modal"
+              >
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Body -->
+          <div class="px-6 py-4">
+            <slot></slot>
+          </div>
+          
+          <!-- Footer -->
+          <div v-if="$slots.footer" class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+            <slot name="footer"></slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
+<script setup>
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+
+// Generate unique ID for accessibility
+const titleId = ref(`modal-title-${Math.random().toString(36).substr(2, 9)}`)
+
+const props = defineProps({
+  // Controls modal visibility
+  show: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Modal title
+  title: String,
+  
+  // Size variants
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg', 'xl', 'full'].includes(value)
+  },
+  
+  // Whether clicking backdrop closes modal
+  closeOnBackdrop: {
+    type: Boolean,
+    default: true
+  },
+  
+  // Whether pressing escape closes modal
+  closeOnEscape: {
+    type: Boolean,
+    default: true
+  }
+})
+
+const emit = defineEmits(['close', 'backdrop-click'])
+
+// Size-based classes
+const modalClasses = computed(() => {
+  const sizeClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-2xl',
+    full: 'max-w-full mx-4'
+  }
+  
+  return ['w-full', sizeClasses[props.size]].join(' ')
+})
+
+// Event handlers
+const handleClose = () => {
+  emit('close')
+}
+
+const handleBackdropClick = () => {
+  emit('backdrop-click')
+  if (props.closeOnBackdrop) {
+    handleClose()
+  }
+}
+
+// Keyboard event handler
+const handleKeydown = (event) => {
+  if (event.key === 'Escape' && props.closeOnEscape && props.show) {
+    handleClose()
+  }
+}
+
+// Body scroll management
+watch(() => props.show, (isShowing) => {
+  if (isShowing) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = '' // Cleanup
+})
+</script>
+```
+
+**Teleport Explanation:**
+- `<Teleport to="body">` renders the modal at the end of the `<body>` element
+- This ensures the modal appears above all other content
+- The backdrop covers the entire viewport with `fixed inset-0`
+- Z-index of 50 ensures it appears above most other elements
+
+**Usage Examples:**
+```vue
+<template>
+  <div>
+    <BaseButton @click="showModal = true">Open Modal</BaseButton>
+    
+    <BaseModal 
+      :show="showModal" 
+      title="Confirmation" 
+      @close="showModal = false"
+    >
+      <p>Are you sure you want to delete this project?</p>
+      
+      <template #footer>
+        <div class="flex justify-end space-x-3">
+          <BaseButton variant="outline" @click="showModal = false">
+            Cancel
+          </BaseButton>
+          <BaseButton variant="danger" @click="handleDelete">
+            Delete
+          </BaseButton>
+        </div>
+      </template>
+    </BaseModal>
+  </div>
+</template>
+```
+
+---
+
+### BaseCard.vue - Flexible Container Component
+
+**Purpose**: A versatile card container that provides consistent styling and flexible content layout.
+
+**Internal Layout Structure:**
+Cards typically have three main areas:
+1. **Header**: Title, actions, metadata
+2. **Body**: Main content area
+3. **Footer**: Actions, links, additional info
+
+**Key Implementation Details:**
+
+Create `client/src/components/base/BaseCard.vue`:
+
+```vue
+<template>
+  <div :class="cardClasses" class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <!-- Header slot -->
+    <div 
+      v-if="$slots.header" 
+      class="px-6 py-4 border-b border-gray-200 bg-gray-50"
+    >
+      <slot name="header"></slot>
+    </div>
+    
+    <!-- Main content -->
+    <div :class="bodyClasses">
+      <slot></slot>
+    </div>
+    
+    <!-- Footer slot -->
+    <div 
+      v-if="$slots.footer" 
+      class="px-6 py-4 border-t border-gray-200 bg-gray-50"
+    >
+      <slot name="footer"></slot>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  // Padding variants for body content
+  padding: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['none', 'sm', 'md', 'lg'].includes(value)
+  },
+  
+  // Shadow intensity
+  shadow: {
+    type: String,
+    default: 'sm',
+    validator: (value) => ['none', 'sm', 'md', 'lg', 'xl'].includes(value)
+  },
+  
+  // Hover effects
+  hover: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Clickable card (adds cursor pointer)
+  clickable: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['click'])
+
+// Card container classes
+const cardClasses = computed(() => {
+  const classes = ['transition-all', 'duration-200']
+  
+  // Shadow classes
+  const shadowClasses = {
+    none: '',
+    sm: 'shadow-sm',
+    md: 'shadow-md',
+    lg: 'shadow-lg',
+    xl: 'shadow-xl'
+  }
+  
+  if (props.shadow !== 'none') {
+    classes.push(shadowClasses[props.shadow])
+  }
+  
+  // Hover effects
+  if (props.hover) {
+    classes.push('hover:shadow-md', 'hover:-translate-y-1')
+  }
+  
+  // Clickable styling
+  if (props.clickable) {
+    classes.push('cursor-pointer', 'hover:shadow-lg')
+  }
+  
+  return classes.join(' ')
+})
+
+// Body padding classes
+const bodyClasses = computed(() => {
+  const paddingClasses = {
+    none: '',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8'
+  }
+  
+  return paddingClasses[props.padding]
+})
+
+const handleClick = (event) => {
+  if (props.clickable) {
+    emit('click', event)
+  }
+}
+</script>
+```
+
+**Internal Layout Patterns:**
+
+1. **Simple Card** (just content):
+```vue
+<BaseCard>
+  <h3>Card Title</h3>
+  <p>Card content goes here...</p>
+</BaseCard>
+```
+
+2. **Card with Header and Footer**:
+```vue
+<BaseCard>
+  <template #header>
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">Project Alpha</h3>
+      <span class="text-sm text-gray-500">In Progress</span>
+    </div>
+  </template>
+  
+  <p class="text-gray-600">Project description and details...</p>
+  
+  <template #footer>
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-gray-500">Due: March 15</span>
+      <BaseButton size="sm">View Details</BaseButton>
+    </div>
+  </template>
+</BaseCard>
+```
+
+3. **Clickable Card** (for navigation):
+```vue
+<BaseCard clickable hover @click="$router.push('/projects/123')">
+  <div class="flex items-center space-x-4">
+    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+      <span class="text-blue-600 text-xl">📋</span>
+    </div>
+    <div>
+      <h3 class="font-semibold">Website Redesign</h3>
+      <p class="text-sm text-gray-500">8 tasks • 3 team members</p>
+    </div>
+  </div>
+</BaseCard>
+```
+
+**Layout Flexibility:**
+The card provides structure while allowing complete flexibility in content layout through slots. This makes it suitable for:
+- Project cards
+- User profile cards
+- Settings panels
+- Dashboard widgets
+- Form containers
+
+**4. Layout Components Structure**
+
+Create basic layout components structure:
+
+**AppHeader.vue** - Features needed:
+- Logo/brand area
+- Navigation menu
+- User profile dropdown
+- Mobile hamburger menu toggle
+- Search functionality
+
+**AppSidebar.vue** - Features needed:
+- Navigation links with icons
+- Collapsible behavior
+- Mobile overlay mode
+- Active link highlighting
+
+**AppFooter.vue** - Features needed:
+- Copyright information
+- Legal links
+- Social media links
+
+**5. Create Reusable Composables**
+
+Create `client/src/composables/useToggle.js` for managing toggle states:
+```javascript
+import { ref } from 'vue'
+
+export function useToggle(initialValue = false) {
+  const state = ref(initialValue)
+  
+  const toggle = () => {
+    state.value = !state.value
+  }
+  
+  const setTrue = () => {
+    state.value = true
+  }
+  
+  const setFalse = () => {
+    state.value = false
+  }
+  
+  return {
+    state,
+    toggle,
+    setTrue,
+    setFalse
+  }
+}
+```
+
+This composable will be useful for sidebar toggles, modal states, and dropdown menus.
+
+**Component Architecture Summary:**
+
+**Base Components** (Generic building blocks):
+- Handle common UI patterns and interactions
+- Provide consistent styling and behavior
+- Accept props for customization
+- Emit events for parent communication
+- Focus on reusability across the entire application
+
+**Feature Components** (Business logic specific):
+- Use Base components internally
+- Handle domain-specific logic (tasks, projects, users)
+- Connect to APIs and state management
+- Implement complex user interactions
+
+**Layout Components** (Application structure):
+- Compose Base components into larger layouts
+- Handle responsive behavior
+- Manage navigation and routing
+- Provide consistent application shell
+
+This architecture ensures your codebase remains maintainable and scalable as TaskFlow grows in complexity.
 
 **Key Decision Points:**
 - **Component granularity:** Balance between reusability and simplicity
 - **Prop vs. slot usage:** Decide when to use props vs. slots for component API
 - **State management:** Plan for component-level vs. global state
-- **TypeScript integration:** Consider type safety for component interfaces
+- **Prop validation:** Use Vue's prop validation features for component safety
 
 **Verification Steps:**
-1. Test that base components work with different prop combinations
-2. Verify component events are properly emitted and handled
-3. Confirm layout components adapt to different content scenarios
-4. Check that components follow consistent patterns and conventions
+1. **Test BaseButton component:**
+   ```vue
+   <template>
+     <div class="p-4 space-y-4">
+       <!-- Test different variants -->
+       <BaseButton variant="primary">Primary Button</BaseButton>
+       <BaseButton variant="outline">Outline Button</BaseButton>
+       <BaseButton variant="ghost">Ghost Button</BaseButton>
+       
+       <!-- Test sizes -->
+       <BaseButton size="sm">Small</BaseButton>
+       <BaseButton size="lg">Large</BaseButton>
+       
+       <!-- Test states -->
+       <BaseButton :loading="true">Loading...</BaseButton>
+       <BaseButton :disabled="true">Disabled</BaseButton>
+       
+       <!-- Test full width -->
+       <BaseButton :full-width="true">Full Width</BaseButton>
+     </div>
+   </template>
+   ```
+
+2. **Verify component organization:**
+   - Check that all components are in correct folders
+   - Ensure consistent naming conventions (PascalCase)
+   - Verify proper import/export patterns
+
+3. **Test component communication:**
+   - Props are passed correctly
+   - Events are emitted and handled
+   - Slots work as expected
+
+4. **Validate Tailwind integration:**
+   - All variants display correctly
+   - Responsive classes work at different screen sizes
+   - Custom TaskFlow colors are applied properly
 
 ---
 
@@ -457,26 +1920,10 @@ lg: 1024px  /* Desktop */
 xl: 1280px  /* Large desktop */
 ```
 
-**Layout composition pattern:**
-```vue
-<template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <AppHeader @toggle-sidebar="toggleSidebar" />
-    
-    <!-- Layout Grid -->
-    <div class="flex">
-      <!-- Sidebar -->
-      <AppSidebar :is-open="sidebarOpen" />
-      
-      <!-- Main Content -->
-      <main class="flex-1 p-4 lg:p-8">
-        <router-view />
-      </main>
-    </div>
-  </div>
-</template>
-```
+**Responsive behavior overview:**
+- **Mobile (< 768px)**: Hamburger menu with overlay sidebar
+- **Tablet (768px - 1024px)**: Collapsible sidebar with content adjustment
+- **Desktop (≥ 1024px)**: Fixed sidebar with spacious layout
 
 **Acceptance criteria:**
 - [ ] Responsive layout works on all screen sizes
@@ -496,41 +1943,435 @@ Before beginning this task, ensure you have:
 
 ### Step-by-Step Implementation Approach
 
-**1. Mobile-First Layout Planning**
-- Design the mobile layout first, then enhance for larger screens
-- Plan navigation patterns for different screen sizes
-- Consider touch interactions and finger-friendly sizing
-- Map out how content will reflow at different breakpoints
+**1. Main App Layout Setup**
 
-**2. Responsive Navigation Implementation**
-- Create hamburger menu for mobile devices
-- Implement sidebar that converts to overlay on small screens
-- Add smooth transitions between mobile and desktop navigation states
-- Ensure navigation is accessible via keyboard and screen readers
+First, update your main `App.vue` to use the responsive layout:
 
-**3. Grid and Flexbox Layout System**
-- Use Tailwind's responsive grid classes for main layout structure
-- Implement flexible content areas that adapt to screen size
-- Create consistent spacing and proportions across breakpoints
-- Test layout behavior when content length varies
+```vue
+<template>
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header Component -->
+    <AppHeader @toggle-sidebar="toggleSidebar" />
+    
+    <!-- Main Layout Container -->
+    <div class="flex relative">
+      <!-- Sidebar Component -->
+      <AppSidebar 
+        :is-open="sidebarOpen" 
+        @close="closeSidebar"
+      />
+      
+      <!-- Main Content Area -->
+      <main class="flex-1 transition-all duration-300 ease-in-out">
+        <!-- Content padding adjusts based on screen size -->
+        <div class="p-4 sm:p-6 lg:p-8">
+          <router-view />
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
 
-**4. Interactive Behavior and State Management**
-- Implement sidebar toggle functionality with Vue reactivity
-- Add responsive behavior for navigation state management
-- Create smooth animations for layout transitions
-- Handle edge cases like screen rotation and browser resize
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import AppHeader from './components/layout/AppHeader.vue'
+import AppSidebar from './components/layout/AppSidebar.vue'
+
+// Sidebar state management
+const sidebarOpen = ref(false)
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
+
+// Close sidebar on large screens automatically
+const handleResize = () => {
+  if (window.innerWidth >= 1024) {
+    sidebarOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+</script>
+```
+
+**Tailwind Classes Explained:**
+- `min-h-screen`: Ensures layout takes full viewport height
+- `flex relative`: Creates flexible layout with relative positioning for overlay
+- `transition-all duration-300 ease-in-out`: Smooth transitions for layout changes
+- `p-4 sm:p-6 lg:p-8`: Responsive padding that increases on larger screens
+
+**2. AppHeader Component Implementation**
+
+Create `client/src/components/layout/AppHeader.vue`:
+
+```vue
+<template>
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Left side: Logo + Mobile menu button -->
+        <div class="flex items-center space-x-4">
+          <!-- Mobile hamburger menu button -->
+          <button
+            @click="$emit('toggle-sidebar')"
+            class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-taskflow-primary transition-colors"
+            aria-label="Toggle navigation menu"
+          >
+            <!-- Hamburger icon -->
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <!-- Logo -->
+          <router-link to="/" class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-taskflow-primary rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <span class="text-xl font-bold text-gray-900 hidden sm:block">TaskFlow</span>
+          </router-link>
+        </div>
+        
+        <!-- Center: Search (hidden on mobile) -->
+        <div class="hidden md:flex flex-1 max-w-lg mx-8">
+          <div class="relative w-full">
+            <input
+              type="search"
+              placeholder="Search projects, tasks..."
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-taskflow-primary focus:border-transparent"
+            >
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right side: User menu -->
+        <div class="flex items-center space-x-4">
+          <!-- Notifications button -->
+          <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          
+          <!-- User profile button -->
+          <button class="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <span class="text-sm font-medium">JD</span>
+            </div>
+            <span class="hidden sm:block text-sm font-medium">John Doe</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+</template>
+
+<script setup>
+// Define events this component can emit
+defineEmits(['toggle-sidebar'])
+</script>
+```
+
+**Header Tailwind Classes Explained:**
+
+**Responsive Layout:**
+- `sticky top-0 z-40`: Header stays at top when scrolling with high z-index
+- `px-4 sm:px-6 lg:px-8`: Responsive horizontal padding
+- `lg:hidden`: Hamburger button only visible on screens smaller than large (1024px)
+
+**Mobile-First Design:**
+- `hidden sm:block`: Logo text hidden on mobile, shown on small screens and up
+- `hidden md:flex`: Search bar hidden on mobile and small screens, shown on medium screens and up
+- `flex items-center space-x-4`: Flexible layout with consistent spacing
+
+**Interactive States:**
+- `hover:bg-gray-100 transition-colors`: Smooth color transitions on hover
+- `focus:ring-2 focus:ring-taskflow-primary`: Accessibility focus indicators
+- `p-2 rounded-lg`: Touch-friendly button sizing with rounded corners
+
+**3. AppSidebar Component with Responsive Behavior**
+
+Create `client/src/components/layout/AppSidebar.vue`:
+
+```vue
+<template>
+  <!-- Overlay for mobile (only visible when sidebar is open) -->
+  <div
+    v-if="isOpen"
+    @click="$emit('close')"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity"
+    aria-hidden="true"
+  ></div>
+  
+  <!-- Sidebar -->
+  <aside 
+    :class="sidebarClasses"
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:transition-none"
+  >
+    <!-- Sidebar header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
+      <span class="text-lg font-semibold text-gray-900">Menu</span>
+      <button
+        @click="$emit('close')"
+        class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+        aria-label="Close navigation menu"
+      >
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Navigation items -->
+    <nav class="flex-1 p-4 space-y-2">
+      <router-link
+        v-for="item in navigationItems"
+        :key="item.name"
+        :to="item.path"
+        :class="getLinkClasses(item.path)"
+        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+        @click="handleLinkClick"
+      >
+        <component :is="item.icon" class="h-5 w-5" />
+        <span>{{ item.name }}</span>
+      </router-link>
+    </nav>
+    
+    <!-- Sidebar footer -->
+    <div class="p-4 border-t border-gray-200">
+      <div class="flex items-center space-x-3 px-3 py-2">
+        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+          <span class="text-xs font-medium">JD</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">John Doe</p>
+          <p class="text-xs text-gray-500 truncate">john@example.com</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// Props
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Events
+const emit = defineEmits(['close'])
+
+// Router
+const route = useRoute()
+
+// Navigation items with simple icon components
+const navigationItems = [
+  {
+    name: 'Dashboard',
+    path: '/dashboard',
+    icon: 'DashboardIcon'
+  },
+  {
+    name: 'Projects',
+    path: '/projects',
+    icon: 'ProjectsIcon'
+  },
+  {
+    name: 'Profile',
+    path: '/profile',
+    icon: 'ProfileIcon'
+  }
+]
+
+// Computed sidebar classes
+const sidebarClasses = computed(() => {
+  return props.isOpen ? 'translate-x-0' : '-translate-x-full'
+})
+
+// Get link classes based on active state
+const getLinkClasses = (path) => {
+  const isActive = route.path === path
+  return isActive
+    ? 'bg-taskflow-primary text-white'
+    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+}
+
+// Handle link click (close sidebar on mobile)
+const handleLinkClick = () => {
+  // Close sidebar on mobile after navigation
+  if (window.innerWidth < 1024) {
+    emit('close')
+  }
+}
+</script>
+```
+
+**Sidebar Tailwind Classes Explained:**
+
+**Responsive Positioning:**
+- `fixed lg:static`: Fixed positioning on mobile/tablet, static on desktop
+- `inset-y-0 left-0`: Full height positioning from left edge
+- `z-50`: High z-index to appear above other content
+
+**Mobile Overlay Pattern:**
+- `fixed inset-0 bg-black bg-opacity-50`: Semi-transparent backdrop covering entire screen
+- `lg:hidden`: Overlay only visible on screens smaller than large
+
+**Slide Animation:**
+- `transform transition-transform duration-300 ease-in-out`: Smooth slide animation
+- `lg:translate-x-0 lg:transition-none`: No animation on desktop (always visible)
+- `-translate-x-full` / `translate-x-0`: Slide in/out from left edge
+
+**Touch-Friendly Sizing:**
+- `w-64`: Fixed width of 256px (16rem) for consistent sidebar size
+- `px-3 py-2`: Comfortable touch targets for navigation items
+- `space-y-2`: Consistent vertical spacing between navigation items
+
+**4. Responsive Content Layout Patterns**
+
+For responsive content within your views, use these Tailwind patterns:
+
+**Grid Layouts:**
+```vue
+<!-- Responsive grid that adapts to screen size -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+  <div class="bg-white p-4 rounded-lg border">
+    <!-- Card content -->
+  </div>
+</div>
+```
+
+**Responsive Typography:**
+```vue
+<!-- Text that scales appropriately -->
+<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 lg:mb-6">
+  Dashboard
+</h1>
+<p class="text-sm sm:text-base text-gray-600 leading-relaxed">
+  Welcome back! Here's your project overview.
+</p>
+```
+
+**Responsive Containers:**
+```vue
+<!-- Container with responsive max-width -->
+<div class="max-w-sm sm:max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Content -->
+</div>
+```
+
+**Mobile-First Button Groups:**
+```vue
+<!-- Buttons that stack on mobile, inline on desktop -->
+<div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+  <BaseButton class="w-full sm:w-auto">Primary Action</BaseButton>
+  <BaseButton variant="outline" class="w-full sm:w-auto">Secondary Action</BaseButton>
+</div>
+```
+
+**Responsive Classes Guide:**
+- `sm:` (640px+): Mobile landscape and small tablets
+- `md:` (768px+): Tablets and small laptops
+- `lg:` (1024px+): Laptops and desktops
+- `xl:` (1280px+): Large desktop screens
+
+**Common Responsive Patterns:**
+- Padding: `p-4 sm:p-6 lg:p-8` - Increases padding on larger screens
+- Text: `text-sm sm:text-base lg:text-lg` - Larger text on bigger screens
+- Spacing: `space-y-4 lg:space-y-6` - More spacing on desktop
+- Hiding: `hidden sm:block` - Hide on mobile, show on larger screens
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` - Responsive columns
 
 **Key Decision Points:**
-- **Breakpoint strategy:** Choose which breakpoints are most important for your users
-- **Navigation pattern:** Decide between overlay, push, or reveal sidebar patterns
-- **Content priority:** Plan what content is most important on smaller screens
-- **Performance considerations:** Balance animations with smooth performance
+
+**Breakpoint Strategy:**
+- **Primary**: Mobile (< 768px) and Desktop (≥ 1024px) - Most important
+- **Secondary**: Tablet (768px - 1024px) - Handle gracefully
+- **TaskFlow choice**: Overlay sidebar pattern for simplicity and consistency
+
+**Navigation Patterns:**
+- **Mobile**: Overlay sidebar with backdrop (chosen for TaskFlow)
+- **Alternative**: Push content (more complex to implement)
+- **Alternative**: Off-canvas reveal (requires more JavaScript)
+
+**Content Priority (Mobile-First):**
+- **Essential**: Navigation, primary actions, key content
+- **Important**: Search, secondary actions, supporting content
+- **Nice-to-have**: Decorative elements, extensive padding
+
+**Performance Considerations:**
+- **Use CSS transforms** for sidebar animation (GPU accelerated)
+- **Minimize JavaScript** for responsive behavior when possible
+- **Debounce resize events** to prevent excessive re-rendering
+- **Prefers-reduced-motion** support for accessibility
 
 **Verification Steps:**
-1. Test layout on actual mobile devices, not just browser responsive mode
-2. Verify navigation works with touch gestures and keyboard navigation
-3. Confirm content remains readable and usable at all screen sizes
-4. Check that interactive elements are large enough for touch interaction
+
+1. **Mobile Testing (< 768px):**
+   - Hamburger menu appears and functions correctly
+   - Sidebar slides in from left with overlay backdrop
+   - Tapping overlay or close button closes sidebar
+   - Navigation links close sidebar after selection
+   - Touch targets are at least 44px for accessibility
+
+2. **Tablet Testing (768px - 1024px):**
+   - Header shows search bar
+   - Sidebar still uses overlay pattern
+   - Content has appropriate padding and spacing
+   - Text remains readable at this screen size
+
+3. **Desktop Testing (≥ 1024px):**
+   - Sidebar is always visible (no hamburger menu)
+   - Layout uses full width efficiently
+   - Search bar is prominently displayed
+   - Hover states work correctly on interactive elements
+
+4. **Cross-Device Testing:**
+   - Test on actual devices, not just browser responsive mode
+   - Verify screen rotation handling (portrait/landscape)
+   - Check touch interactions vs mouse interactions
+   - Ensure keyboard navigation works for accessibility
+
+5. **Performance Verification:**
+   - Animations are smooth (60fps) on mobile devices
+   - No layout shift during responsive transitions
+   - Touch interactions feel responsive (< 100ms)
+   - Content loads quickly on slower connections
+
+**Testing Tools:**
+```bash
+# Test on different screen sizes
+# Chrome DevTools: Toggle device toolbar (Cmd+Shift+M)
+# Test these device presets:
+# - iPhone SE (375px)
+# - iPad (768px)
+# - Desktop (1920px)
+
+# Test touch interactions
+# Enable touch simulation in Chrome DevTools
+# Verify 44px minimum touch targets
+```
 
 ## Challenge Extensions
 

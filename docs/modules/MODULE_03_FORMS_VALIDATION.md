@@ -1,12 +1,4 @@
----
-title: "Module 3: Form Handling and Validation"
-description: "Build comprehensive forms with VeeValidate and Zod schema validation"
-layout: default
----
-
 # Module 3: Form Handling and Validation
-
-[← Back to Course](../) | [📚 Previous: Module 2](MODULE_02_VUE_FOUNDATION.html) | [📚 Next: Module 4](MODULE_04_BACKEND_API.html) | [📐 View Mockups](../mockups/MODULE_03_MOCKUPS.html)
 
 **Duration:** 2-3 days  
 **Branch:** `feature/module-3-forms-validation`
