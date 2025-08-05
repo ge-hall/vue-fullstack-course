@@ -401,45 +401,370 @@ Before beginning this task, ensure you have:
 ---
 
 ### Task 2.3: Vue Router Configuration
-**Objective:** Set up client-side routing for single-page application navigation
+**Objective:** Set up client-side routing for single-page application navigation with TaskFlow routes
 
 **What you need to accomplish:**
-- Configure Vue Router with modern setup
-- Create route definitions for main application areas
-- Set up nested routing structure
-- Implement navigation guards (basic)
+- Configure Vue Router 4 with modern Composition API setup
+- Create route definitions for TaskFlow application areas
+- Build view components for each route
+- Set up nested routing structure for complex features
+- Implement basic navigation guards for future authentication
+- Configure route metadata and navigation
 
 **Documentation to consult:**
-- [Vue Router Installation](https://router.vuejs.org/installation.html)
-- [Vue Router Guide](https://router.vuejs.org/guide/)
+- [Vue Router 4 Installation](https://router.vuejs.org/installation.html)
+- [Vue Router 4 Guide](https://router.vuejs.org/guide/)
+- [Composition API with Router](https://router.vuejs.org/guide/advanced/composition-api.html)
 - [Navigation Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html)
 
-**Routes to plan for:**
-```javascript
-// Pseudocode for route structure
-const routes = [
-  { path: '/', component: 'Dashboard' },
-  { path: '/login', component: 'Login' },
-  { path: '/register', component: 'Register' },
-  { path: '/projects', component: 'Projects' },
-  { path: '/projects/:id', component: 'ProjectDetail' },
-  { path: '/profile', component: 'Profile' },
-  // Catch-all route for 404
-]
+**Step-by-step implementation:**
+
+**1. Verify Router Installation**
+Since you selected Vue Router during project creation, verify it's properly installed:
+```bash
+# Check if Vue Router is in package.json
+cat client/package.json | grep vue-router
 ```
 
-**Navigation guard considerations:**
-- Authentication checks
-- Route-based permissions
-- Loading states
-- Redirect logic
+If not installed:
+```bash
+cd client/
+npm install vue-router@4
+```
+
+**2. Router Configuration Setup**
+
+Examine your existing `client/src/router/index.js` and update it:
+```javascript
+import { createRouter, createWebHistory } from 'vue-router'
+
+// Import view components (we'll create these next)
+import HomeView from '../views/HomeView.vue'
+import DashboardView from '../views/DashboardView.vue'
+import ProjectsView from '../views/ProjectsView.vue'
+import ProjectDetailView from '../views/ProjectDetailView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import RegisterView from '../views/auth/RegisterView.vue'
+import ProfileView from '../views/ProfileView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
+
+const routes = [
+  // Public routes
+  {
+    path: '/',
+    name: 'Home',
+    component: HomeView,
+    meta: {
+      title: 'TaskFlow - Collaborative Task Management',
+      requiresAuth: false
+    }
+  },
+  
+  // Authentication routes
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginView,
+    meta: {
+      title: 'Login - TaskFlow',
+      requiresAuth: false,
+      redirectIfAuthenticated: true
+    }
+  },
+  {
+    path: '/register',
+    name: 'Register', 
+    component: RegisterView,
+    meta: {
+      title: 'Register - TaskFlow',
+      requiresAuth: false,
+      redirectIfAuthenticated: true
+    }
+  },
+  
+  // Protected routes (require authentication)
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashboardView,
+    meta: {
+      title: 'Dashboard - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/projects',
+    name: 'Projects',
+    component: ProjectsView,
+    meta: {
+      title: 'Projects - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/projects/:id',
+    name: 'ProjectDetail',
+    component: ProjectDetailView,
+    meta: {
+      title: 'Project Details - TaskFlow',
+      requiresAuth: true
+    },
+    props: true // Pass route params as props
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: ProfileView,
+    meta: {
+      title: 'Profile - TaskFlow',
+      requiresAuth: true
+    }
+  },
+  
+  // 404 catch-all route
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFoundView,
+    meta: {
+      title: '404 - Page Not Found'
+    }
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+  // Scroll behavior for better UX
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
+})
+
+// Global navigation guard (basic setup for future authentication)
+router.beforeEach((to, from, next) => {
+  // Update document title
+  document.title = to.meta.title || 'TaskFlow'
+  
+  // For now, just proceed (we'll add auth logic in later modules)
+  next()
+})
+
+export default router
+```
+
+**3. Create View Components**
+
+Create the views folder structure and components:
+```bash
+# Create views directory structure
+mkdir -p client/src/views/auth
+```
+
+**HomeView.vue** (Landing page):
+```vue
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 py-16">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold text-gray-900 mb-6">
+          Welcome to <span class="text-taskflow-primary">TaskFlow</span>
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Streamline your team's productivity with our collaborative task management platform.
+          Organize projects, assign tasks, and track progress in real-time.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="space-x-4">
+          <router-link 
+            to="/register" 
+            class="bg-taskflow-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Get Started Free
+          </router-link>
+          <router-link 
+            to="/login" 
+            class="bg-white text-taskflow-primary px-8 py-3 rounded-lg font-semibold border border-taskflow-primary hover:bg-blue-50 transition-colors"
+          >
+            Sign In
+          </router-link>
+        </div>
+      </div>
+      
+      <!-- Features Preview -->
+      <div class="mt-16 grid md:grid-cols-3 gap-8">
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">📋</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Project Management</h3>
+          <p class="text-gray-600">Organize tasks into projects with customizable workflows</p>
+        </div>
+        
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">👥</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Team Collaboration</h3>
+          <p class="text-gray-600">Work together seamlessly with real-time updates</p>
+        </div>
+        
+        <div class="text-center p-6 bg-white rounded-lg shadow-md">
+          <div class="w-12 h-12 bg-taskflow-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <span class="text-white text-xl">📊</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Progress Tracking</h3>
+          <p class="text-gray-600">Monitor project progress with intuitive dashboards</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// This page doesn't need any reactive state yet
+// We'll add analytics tracking and API calls in later modules
+</script>
+```
+
+**DashboardView.vue** (Main app dashboard):
+```vue
+<template>
+  <div class="p-6">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <p class="text-gray-600 mt-2">Welcome back! Here's what's happening with your projects.</p>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Active Projects</h3>
+        <p class="text-2xl font-bold text-taskflow-primary mt-2">12</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Tasks Completed</h3>
+        <p class="text-2xl font-bold text-taskflow-success mt-2">48</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Team Members</h3>
+        <p class="text-2xl font-bold text-taskflow-secondary mt-2">8</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 class="text-sm font-medium text-gray-500">Due This Week</h3>
+        <p class="text-2xl font-bold text-taskflow-warning mt-2">6</p>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+      <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+      <div class="space-x-4">
+        <router-link 
+          to="/projects" 
+          class="bg-taskflow-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          View All Projects
+        </router-link>
+        <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+          Create New Task
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Dashboard logic will be added in later modules
+// For now, this is a static layout to test routing
+</script>
+```
+
+**Basic Auth Views** (LoginView.vue and RegisterView.vue):
+```vue
+<!-- client/src/views/auth/LoginView.vue -->
+<template>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8 p-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-900">Sign in to TaskFlow</h2>
+        <p class="mt-2 text-gray-600">Access your projects and collaborate with your team</p>
+      </div>
+      
+      <!-- Login form will be implemented in Module 3 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <p class="text-center text-gray-500">Login form will be implemented in Module 3</p>
+        <div class="mt-4 text-center">
+          <router-link 
+            to="/dashboard" 
+            class="text-taskflow-primary hover:underline"
+          >
+            Continue to Dashboard (Demo)
+          </router-link>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Login logic will be implemented in Module 3
+</script>
+```
+
+**Other View Components** (create similar basic structures):
+- `RegisterView.vue`
+- `ProjectsView.vue` 
+- `ProjectDetailView.vue`
+- `ProfileView.vue`
+- `NotFoundView.vue`
+
+**4. Navigation Guards Setup**
+
+The router already includes a basic navigation guard. Here's what it does:
+```javascript
+// Global navigation guard (basic setup for future authentication)
+router.beforeEach((to, from, next) => {
+  // Update document title based on route meta
+  document.title = to.meta.title || 'TaskFlow'
+  
+  // TODO: Add authentication checks in Module 4
+  // For now, just proceed to the route
+  next()
+})
+```
+
+**Future authentication logic** (will be implemented in Module 4):
+```javascript
+// Example of what we'll add later:
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = checkAuthStatus() // Will implement later
+  
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.meta.redirectIfAuthenticated && isAuthenticated) {
+    next('/dashboard')
+  } else {
+    next()
+  }
+})
+```
 
 **Acceptance criteria:**
-- [ ] Vue Router properly configured
-- [ ] All planned routes defined
-- [ ] Navigation between routes works
-- [ ] URL changes reflect in browser
-- [ ] Basic navigation guards implemented
+- [ ] Vue Router 4 properly configured with history mode
+- [ ] All TaskFlow routes defined with proper metadata
+- [ ] View components created for each route
+- [ ] Navigation between routes works smoothly
+- [ ] URL changes reflect in browser and are bookmarkable
+- [ ] Basic navigation guards implemented for title updates
+- [ ] Router-link components work correctly
+- [ ] 404 page displays for invalid routes
 
 ## Implementation Guidance
 
@@ -453,28 +778,28 @@ Before beginning this task, ensure you have:
 ### Step-by-Step Implementation Approach
 
 **1. Router Configuration Setup**
-- Examine the generated router configuration if included during project setup
-- Understand the difference between hash mode and history mode
-- Configure the router with your preferred mode and base URL
-- Plan your route hierarchy and nested route relationships
+- Examine the generated router configuration from Vue project creation
+- Use history mode (createWebHistory) for clean URLs without # symbol
+- Configure router with proper base URL and scroll behavior
+- Plan route hierarchy: public routes, auth routes, protected routes
 
 **2. Route Definition and Components**
-- Create view components for each main route
-- Define route objects with path, component, and metadata
-- Set up nested routes for complex application areas
-- Plan for dynamic routes with parameters (e.g., `/projects/:id`)
+- Create comprehensive view components for TaskFlow application
+- Define route objects with path, component, meta properties, and names
+- Use route metadata for titles, authentication requirements, and other flags
+- Implement dynamic routes with parameters and props passing
 
-**3. Navigation Implementation**
-- Use router-link components for declarative navigation
-- Implement programmatic navigation with useRouter composable
-- Set up navigation guards for authentication and authorization
-- Handle route changes and loading states appropriately
+**3. Navigation Implementation and Testing**
+- Use router-link components for declarative navigation with proper styling
+- Test programmatic navigation with useRouter composable in components
+- Set up basic navigation guards for title updates and future auth logic
+- Implement proper scroll behavior and route transition handling
 
-**4. Advanced Router Features**
-- Configure route metadata for titles, authentication requirements
-- Set up lazy loading for route components
-- Implement proper error handling for failed route navigation
-- Add transition animations between route changes
+**4. Router Enhancement and Optimization**
+- Configure comprehensive route metadata for SEO and auth
+- Plan for lazy loading implementation in future performance optimization
+- Implement proper 404 error handling with custom NotFound component
+- Prepare structure for route transition animations
 
 **Key Decision Points:**
 - **History mode vs. hash mode:** History mode preferred for SEO, hash mode for simple hosting
@@ -483,10 +808,29 @@ Before beginning this task, ensure you have:
 - **Navigation guard strategy:** Plan authentication and permission checking approach
 
 **Verification Steps:**
-1. Test that all routes navigate correctly via URL and router-link
-2. Verify browser back/forward buttons work as expected
-3. Confirm route parameters are passed correctly to components
-4. Check that navigation guards prevent/allow access appropriately
+1. **Test route navigation:**
+   - Navigate to each route via URL bar: `/`, `/login`, `/dashboard`, etc.
+   - Click router-link components and verify smooth navigation
+   - Test browser back/forward buttons work correctly
+
+2. **Verify dynamic routes:**
+   - Navigate to `/projects/123` and confirm ProjectDetail component loads
+   - Check that route parameters are accessible in the component
+   - Test different project IDs work correctly
+
+3. **Check route metadata:**
+   - Verify page titles update correctly when navigating
+   - Confirm document.title changes reflect route meta.title
+
+4. **Test error handling:**
+   - Navigate to non-existent route like `/invalid-page`
+   - Verify 404 NotFound component displays
+   - Check that invalid routes don't break the application
+
+5. **Validate router-link styling:**
+   - Ensure navigation links have proper hover states
+   - Verify active route styling (if implemented)
+   - Test responsive navigation behavior
 
 ---
 
