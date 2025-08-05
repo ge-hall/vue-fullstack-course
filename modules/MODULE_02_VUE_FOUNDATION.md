@@ -220,78 +220,150 @@ Before beginning this task, ensure you have:
 ---
 
 ### Task 2.2: Tailwind CSS Integration
-**Objective:** Configure Tailwind CSS for utility-first styling approach
+**Objective:** Configure Tailwind CSS 4 for utility-first styling with Vite integration
 
 **What you need to accomplish:**
-- Install and configure Tailwind CSS
-- Set up purging for production builds
-- Configure custom design tokens
-- Create base styles and utilities
+- Install Tailwind CSS 4 with the new Vite plugin
+- Configure Tailwind for Vue.js components
+- Set up custom design tokens for TaskFlow
+- Test utility classes and responsive design
 
 **Documentation to consult:**
-- [Tailwind CSS Installation](https://tailwindcss.com/docs/installation)
-- [Tailwind with Vite](https://tailwindcss.com/docs/guides/vite)
-- [Tailwind Configuration](https://tailwindcss.com/docs/configuration)
+- [Tailwind CSS with Vite](https://tailwindcss.com/docs/installation/using-vite)
+- [Tailwind CSS Configuration](https://tailwindcss.com/docs/configuration)
+- [Tailwind CSS Framework Guide for Vue](https://tailwindcss.com/docs/installation/framework-guides)
 
-**Installation steps to research:**
+**Step-by-step installation for Tailwind CSS 4:**
+
+**1. Install Tailwind CSS 4 with Vite Plugin**
 ```bash
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
+# In your client/ directory
+cd client/
+npm install tailwindcss @tailwindcss/vite
 ```
 
-**Configuration hints:**
-- Set up content paths for Vue files
-- Configure custom colors for your app theme
-- Add custom spacing and typography scales
-- Set up dark mode support (optional)
+**Why the new approach?**
+- **@tailwindcss/vite**: The new official Vite plugin for Tailwind CSS 4
+- **No PostCSS setup needed**: The Vite plugin handles everything automatically
+- **Better performance**: Native Vite integration with faster builds
+- **Simplified configuration**: Less setup compared to the traditional PostCSS approach
 
-**Custom theme example:**
+**2. Configure Vite Plugin**
+Update your `client/vite.config.js` to include the Tailwind plugin:
 ```javascript
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          900: '#1e3a8a',
-        }
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),  // Add Tailwind CSS plugin
+  ],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
       }
     }
   }
+})
+```
+
+**3. Import Tailwind CSS**
+Update your main CSS file `client/src/style.css` (or create it):
+```css
+@import "tailwindcss";
+
+/* Custom TaskFlow styles */
+:root {
+  --taskflow-primary: #2563eb;
+  --taskflow-secondary: #64748b;
+  --taskflow-success: #059669;
+  --taskflow-warning: #d97706;
+  --taskflow-error: #dc2626;
+}
+
+/* Custom component styles can go here */
+```
+
+**4. Import CSS in Your Vue App**
+Ensure the CSS is imported in `client/src/main.js`:
+```javascript
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import App from './App.vue'
+import './style.css'  // Import Tailwind CSS
+
+// Router setup...
+const app = createApp(App)
+app.use(router)
+app.mount('#app')
+```
+
+**5. Configure Tailwind (Optional)**
+Create `client/tailwind.config.js` for customization:
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'taskflow': {
+          primary: '#2563eb',
+          secondary: '#64748b',
+          accent: '#7c3aed',
+          success: '#059669',
+          warning: '#d97706',
+          error: '#dc2626',
+        }
+      },
+      fontFamily: {
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
 }
 ```
 
 **Acceptance criteria:**
-- [ ] Tailwind CSS properly installed and configured
-- [ ] Styles compile without errors
-- [ ] Custom design tokens defined
-- [ ] Purging works in production build
-- [ ] Basic utility classes functional
+- [ ] Tailwind CSS 4 with Vite plugin properly installed
+- [ ] Vite configuration updated with @tailwindcss/vite plugin
+- [ ] Styles compile without errors using new import syntax
+- [ ] TaskFlow custom design tokens defined
+- [ ] Utility classes work in Vue components
+- [ ] Hot reloading works with CSS changes
 
 ## Implementation Guidance
 
 ### Getting Started
 Before beginning this task, ensure you have:
-- [ ] Vue 3 project successfully running
+- [ ] Vue 3 project successfully running from Task 2.1
 - [ ] Understanding of utility-first CSS approach
-- [ ] Knowledge of PostCSS and how it works with Vite
-- [ ] Basic familiarity with CSS custom properties
+- [ ] Familiarity with Vite and how plugins work
+- [ ] Basic knowledge of CSS imports and custom properties
 
 ### Step-by-Step Implementation Approach
 
-**1. Tailwind Installation and Setup**
-- Install Tailwind CSS and its peer dependencies using npm
-- Generate Tailwind and PostCSS configuration files
-- Understand how Tailwind integrates with Vite's build process
-- Configure content paths to include all Vue files for proper purging
+**1. Tailwind 4 Installation with Vite Plugin**
+- Install the new `@tailwindcss/vite` plugin (no PostCSS setup required)
+- Configure the Vite plugin in your config file
+- Understand how the new plugin simplifies the build process
+- Import Tailwind using the new `@import "tailwindcss"` syntax
 
-**2. Configuration and Customization**
-- Set up your main CSS file with Tailwind directives
-- Configure content paths in tailwind.config.js for proper purging
-- Define custom color palette that reflects your application's brand
-- Set up custom spacing, typography, and component variants
+**2. TaskFlow Design System Setup**
+- Import Tailwind in your main CSS file using the new syntax
+- Define TaskFlow-specific color palette and design tokens
+- Set up custom CSS variables for consistent theming
+- Configure content paths for Vue file detection (optional with new plugin)
 
 **3. Integration with Vue Components**
 - Import Tailwind styles in your main application entry point
@@ -299,23 +371,32 @@ Before beginning this task, ensure you have:
 - Understand how to use Tailwind classes with dynamic Vue styling
 - Configure any necessary CSS-in-JS patterns for dynamic styles
 
-**4. Production Optimization**
-- Verify Tailwind's purging removes unused CSS in production builds
-- Test that custom configuration works in both development and production
-- Ensure build sizes are optimized and performant
-- Set up any additional PostCSS plugins if needed
+**4. Production Optimization and Testing**
+- Verify Tailwind's automatic CSS optimization in production builds
+- Test that custom TaskFlow colors work in both development and production
+- Ensure build sizes are optimized with the new Vite plugin
+- Confirm hot reloading works seamlessly during development
 
 **Key Decision Points:**
-- **Custom theme extent:** Decide how much to customize vs. using defaults
-- **Component abstraction:** Plan when to create CSS components vs. using utilities
-- **Dark mode strategy:** Consider if you need dark mode support now or later
-- **Design system integration:** Plan how Tailwind fits with your design tokens
+- **Vite plugin vs PostCSS:** Using the new @tailwindcss/vite plugin is recommended for better performance
+- **TaskFlow design system:** Establish consistent colors and spacing for the application
+- **Component patterns:** Plan when to use utility classes vs custom CSS components
+- **Dark mode planning:** Consider TaskFlow's future dark mode requirements
 
 **Verification Steps:**
-1. Test that utility classes like `bg-blue-500` and `text-center` work in components
-2. Verify your custom colors appear correctly when used
-3. Confirm production build only includes used CSS classes
-4. Check that responsive classes work at different screen sizes
+1. Test basic utility classes in a Vue component:
+   ```vue
+   <template>
+     <div class="bg-taskflow-primary text-white p-4 rounded-lg">
+       <h1 class="text-2xl font-bold">TaskFlow Header</h1>
+       <p class="text-sm opacity-90">Testing Tailwind CSS 4 integration</p>
+     </div>
+   </template>
+   ```
+2. Verify responsive classes work: `md:text-lg lg:text-xl`
+3. Test custom colors: `bg-taskflow-primary`, `text-taskflow-secondary`
+4. Confirm build optimization: run `npm run build` and check CSS bundle size
+5. Test hot reloading: change classes and verify instant updates
 
 ---
 
