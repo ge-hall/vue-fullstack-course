@@ -417,7 +417,25 @@ Before beginning this task, ensure you have:
 - [Composition API with Router](https://router.vuejs.org/guide/advanced/composition-api.html)
 - [Navigation Guards](https://router.vuejs.org/guide/advanced/navigation-guards.html)
 
-**Step-by-step implementation:**
+**Acceptance criteria:**
+- [ ] Vue Router 4 properly configured with history mode
+- [ ] All planned routes defined with proper metadata
+- [ ] View components created for each route
+- [ ] Navigation between routes works
+- [ ] URL changes reflect in browser
+- [ ] Basic navigation guards implemented
+- [ ] 404 page displays for invalid routes
+
+## Implementation Guidance
+
+### Getting Started
+Before beginning this task, ensure you have:
+- [ ] Vue Router included during project initialization
+- [ ] Understanding of client-side routing concepts
+- [ ] Knowledge of Vue 3 Composition API
+- [ ] Basic familiarity with route metadata and guards
+
+### Step-by-Step Implementation Approach
 
 **1. Verify Router Installation**
 Since you selected Vue Router during project creation, verify it's properly installed:
@@ -433,7 +451,6 @@ npm install vue-router@4
 ```
 
 **2. Router Configuration Setup**
-
 Examine your existing `client/src/router/index.js` and update it:
 ```javascript
 import { createRouter, createWebHistory } from 'vue-router'
