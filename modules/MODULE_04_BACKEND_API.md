@@ -229,6 +229,79 @@ Before beginning this task, ensure you have:
 - [Express.js Router](https://expressjs.com/en/4x/api.html#router)
 - [REST API Design Best Practices](https://restfulapi.net/rest-api-design-tutorial-with-example/)
 
+**Understanding Modular API Architecture**
+
+Before implementing routes, it's crucial to understand why we organize our API code into separate folders and files, and how TypeScript enhances this structure.
+
+**Why Separate Folders and Files?**
+
+In a well-structured API, we separate concerns to make our code:
+- **Maintainable** - Easy to find and modify specific functionality
+- **Scalable** - New features can be added without disrupting existing code
+- **Testable** - Individual components can be tested in isolation
+- **Collaborative** - Team members can work on different parts simultaneously
+
+**Project Structure Explained:**
+
+1. **`controllers/`** - Business logic and request handling
+   - Contains the actual functions that process requests
+   - Keeps route files clean and focused on routing logic
+   - Makes business logic reusable and testable
+
+2. **`routes/`** - URL path definitions and middleware orchestration
+   - Defines which URLs map to which controller functions
+   - Applies middleware (validation, authentication) to specific routes
+   - Keeps routing logic separate from business logic
+
+3. **`middleware/`** - Reusable functions that process requests
+   - Authentication, validation, error handling functions
+   - Can be applied to multiple routes without duplication
+   - Promotes code reuse and consistency
+
+4. **`types/`** - TypeScript type definitions
+   - Defines data structures and interfaces
+   - Ensures type safety across the application
+   - Makes code self-documenting
+
+5. **`utils/`** - Helper functions and utilities
+   - Common functionality used across the application
+   - Keeps main code files focused on their primary purpose
+
+**TypeScript in API Development**
+
+We're using TypeScript instead of plain JavaScript for several important benefits:
+
+**Type Safety:**
+```typescript
+// TypeScript catches errors at compile time
+interface User {
+  id: string
+  email: string
+  firstName: string
+}
+
+// This would cause a TypeScript error if 'age' doesn't exist on User
+function getUser(id: string): User {
+  // TypeScript ensures we return the correct structure
+  return { id, email: "test@example.com", firstName: "John" }
+}
+```
+
+**Better IDE Support:**
+- Auto-completion for object properties and methods
+- Real-time error detection while coding
+- Refactoring tools that understand your code structure
+
+**Self-Documenting Code:**
+- Function signatures show exactly what parameters are expected
+- Return types make it clear what functions produce
+- Interfaces document data structures
+
+**Enhanced Debugging:**
+- Compile-time error checking prevents many runtime errors
+- Better stack traces and error messages
+- IDE can catch issues before running the code
+
 **Route structure to implement:**
 ```
 server/src/
@@ -254,7 +327,10 @@ server/src/
     └── responses.ts
 ```
 
-**Example route implementation:**
+**Understanding TypeScript-Enhanced Route Implementation**
+
+The route file below demonstrates how TypeScript and modular architecture work together:
+
 ```typescript
 // routes/auth.ts
 import { Router } from 'express'
@@ -264,24 +340,45 @@ import { registerSchema, loginSchema } from '../schemas/auth'
 
 const router = Router()
 
+// Notice how we chain middleware functions before the controller
 router.post('/register', 
-  validateRequest(registerSchema),
-  authController.register
+  validateRequest(registerSchema),  // Custom middleware (defined in Task 4.3)
+  authController.register          // Controller function (defined in Task 4.4)
 )
 
 router.post('/login',
-  validateRequest(loginSchema), 
-  authController.login
+  validateRequest(loginSchema),    // Validation middleware
+  authController.login            // Authentication controller
 )
 
 router.post('/logout',
-  authController.logout
+  authController.logout           // Simple logout - no validation needed
 )
 
 export default router
 ```
 
-**API versioning setup:**
+**Key TypeScript Benefits in This Example:**
+
+1. **Import Type Safety** - TypeScript ensures imported functions exist and have correct signatures
+2. **Function Parameter Types** - The `validateRequest` function knows what schema types to expect
+3. **Router Method Types** - TypeScript validates that we're using correct HTTP methods and middleware signatures
+4. **Auto-completion** - Your IDE will suggest available controller methods and middleware functions
+
+**Custom Middleware Functions**
+
+Notice how we're using `validateRequest(registerSchema)` - this is a custom middleware function that will be defined in **Task 4.3**. This pattern allows us to:
+
+- **Reuse validation logic** across multiple routes
+- **Keep routes clean** by extracting complex logic to middleware
+- **Chain multiple middleware** functions for complex request processing
+- **Apply consistent error handling** across all routes
+
+The `authController.register` and other controller functions will be defined in **Task 4.4**, demonstrating the separation between routing logic and business logic.
+
+**API Versioning Setup**
+
+API versioning is essential for maintaining backward compatibility as your API evolves. Here's why and how we implement it:
 ```typescript
 // app.ts
 import authRoutes from './routes/auth'
@@ -291,6 +388,32 @@ import userRoutes from './routes/users'
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/users', userRoutes)
 ```
+
+**Why API Versioning Matters:**
+
+1. **Backward Compatibility** - Existing client applications continue working when you add new features
+2. **Gradual Migration** - Users can migrate to new API versions at their own pace
+3. **Breaking Changes** - You can introduce breaking changes in new versions without affecting existing users
+4. **Clear Communication** - Version numbers communicate the API's maturity and stability
+
+**How Our Versioning Works:**
+
+- **URL-based versioning** - Version is part of the URL path (`/api/v1/`)
+- **Consistent structure** - All endpoints follow the same versioning pattern
+- **Future-ready** - Easy to add v2, v3, etc. when needed
+
+**Example API endpoints with versioning:**
+```
+POST /api/v1/auth/register    # Version 1 registration
+POST /api/v1/auth/login       # Version 1 login
+GET  /api/v1/users/profile    # Version 1 user profile
+
+# Future versions might look like:
+POST /api/v2/auth/register    # Version 2 with enhanced features
+GET  /api/v2/users/profile    # Version 2 with additional user data
+```
+
+This approach allows TaskFlow to evolve its API over time while maintaining support for existing integrations.
 
 **Acceptance criteria:**
 - [ ] Route structure organized and modular
