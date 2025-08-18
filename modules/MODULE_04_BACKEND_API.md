@@ -1233,7 +1233,81 @@ npm install bcrypt jsonwebtoken express-rate-limit
 npm install -D @types/bcrypt @types/jsonwebtoken
 ```
 
-**Authentication controller implementation:**
+## Understanding Authentication Security Concepts
+
+Before building our authentication endpoints, let's understand the key security concepts we'll implement:
+
+### Password Hashing with bcrypt
+**Why hash passwords?**
+- **Never store plain text passwords** - If your database is compromised, user passwords remain secure
+- **One-way encryption** - Even with the hash, the original password cannot be recovered
+- **Salt protection** - Each password gets a unique salt to prevent rainbow table attacks
+
+### JSON Web Tokens (JWT)
+**Why use JWTs for authentication?**
+- **Stateless authentication** - Server doesn't need to store session data
+- **Self-contained** - Token contains user information and expiration
+- **Scalable** - Works across multiple servers without shared session storage
+
+### Rate Limiting
+**Why limit authentication attempts?**
+- **Brute force protection** - Prevents attackers from trying many passwords
+- **DDoS mitigation** - Limits request volume from individual IPs
+- **Resource protection** - Prevents abuse of computationally expensive operations
+
+---
+
+## File 1: Authentication Controller (`controllers/authController.ts`)
+
+**Purpose:** This controller handles user registration, login, and logout with proper security measures including password hashing and JWT token generation.
+
+### Step 1: Set up the basic controller structure and imports
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+```
+
+**What we're adding:**
+- **Express types** - For proper TypeScript middleware function signatures
+- **bcrypt** - For secure password hashing and comparison
+- **jsonwebtoken** - For creating and verifying JWT tokens
+- **AppError** - Our custom error class from Task 4.3
+
+**Why these dependencies:**
+- **Type safety** - Express types ensure correct parameter usage
+- **Security** - bcrypt uses industry-standard hashing algorithms
+- **Authentication** - JWT provides stateless, scalable authentication
+- **Error handling** - Consistent error responses using our custom error class
+
+### Step 2: Create the controller object structure
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+export const authController = {
+  // Methods will be added step by step
+}
+```
+
+**What we're adding:**
+- **Export structure** - Makes controller methods available for route imports
+- **Object pattern** - Groups related authentication functions together
+
+**Why this pattern:**
+- **Organization** - All auth-related functions in one place
+- **Modularity** - Easy to import specific methods in routes
+- **Scalability** - Easy to add new authentication methods later
+
+### Step 3: Build the registration method foundation
+
 ```typescript
 // controllers/authController.ts
 import { Request, Response, NextFunction } from 'express'
@@ -1246,14 +1320,209 @@ export const authController = {
     try {
       const { firstName, lastName, email, password } = req.validatedData.body
       
-      // Check if user exists (this will be replaced with database check)
-      // For now, simulate with in-memory storage or file
+      // Implementation will be added step by step
       
-      // Hash password
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **Async function** - Registration involves async operations (hashing, database operations)
+- **Destructuring** - Extracts validated data from the request body
+- **Error handling** - Catches and forwards errors to our error handler middleware
+
+**Why this approach:**
+- **Data safety** - Uses pre-validated data from our validation middleware (Task 4.3)
+- **Async support** - Properly handles asynchronous password hashing and database operations
+- **Error propagation** - Forwards errors to centralized error handling
+
+### Step 4: Add user existence check (mock implementation)
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { firstName, lastName, email, password } = req.validatedData.body
+      
+      // Check if user already exists
+      const existingUser = users.find(user => user.email === email)
+      if (existingUser) {
+        return next(new AppError('User already exists with this email', 409))
+      }
+      
+      // Password hashing will be added next
+      
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **Mock storage** - Temporary in-memory user storage for development
+- **Duplicate check** - Prevents registering the same email twice
+- **Conflict error** - Returns 409 status code for duplicate email attempts
+
+**Why this implementation:**
+- **Development ready** - Works without database setup
+- **Production patterns** - Same logic will work with real database
+- **Security** - Prevents account enumeration attacks by consistent error handling
+
+### Step 5: Implement secure password hashing
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { firstName, lastName, email, password } = req.validatedData.body
+      
+      // Check if user already exists
+      const existingUser = users.find(user => user.email === email)
+      if (existingUser) {
+        return next(new AppError('User already exists with this email', 409))
+      }
+      
+      // Hash password securely
       const saltRounds = 12
       const hashedPassword = await bcrypt.hash(password, saltRounds)
       
-      // Create user (mock for now)
+      // User creation will be added next
+      
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **Salt rounds** - Controls the computational cost of hashing (12 is recommended for 2024)
+- **Password hashing** - Converts plain text password to secure hash
+- **Await operation** - Properly waits for the async hashing operation
+
+**Why salt rounds = 12:**
+- **Security balance** - High enough to prevent brute force, not so high it's slow
+- **Future-proof** - Accounts for improving hardware capabilities
+- **Industry standard** - Recommended by security experts for current applications
+
+### Step 6: Create user object and JWT token
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { firstName, lastName, email, password } = req.validatedData.body
+      
+      // Check if user already exists
+      const existingUser = users.find(user => user.email === email)
+      if (existingUser) {
+        return next(new AppError('User already exists with this email', 409))
+      }
+      
+      // Hash password securely
+      const saltRounds = 12
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+      
+      // Create user object
+      const user = {
+        id: Date.now().toString(), // Simple ID generation for development
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        createdAt: new Date()
+      }
+      
+      // Store user (in production, this would be a database save)
+      users.push(user)
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, email: user.email }, // Payload
+        process.env.JWT_SECRET!, // Secret key
+        { expiresIn: '7d' } // Token expires in 7 days
+      )
+      
+      // Send response will be added next
+      
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **User object creation** - Structured user data with hashed password
+- **User storage** - Saves user to mock storage (will be database later)
+- **JWT token generation** - Creates signed token for authentication
+- **Token payload** - Contains user ID and email for identification
+- **Token expiration** - 7-day expiry for security
+
+**Why this JWT structure:**
+- **Minimal payload** - Only essential information to reduce token size
+- **Expiration** - Limits the damage if token is compromised
+- **Signing** - Verifies token wasn't tampered with
+
+### Step 7: Send registration response
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { firstName, lastName, email, password } = req.validatedData.body
+      
+      // Check if user already exists
+      const existingUser = users.find(user => user.email === email)
+      if (existingUser) {
+        return next(new AppError('User already exists with this email', 409))
+      }
+      
+      // Hash password securely
+      const saltRounds = 12
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+      
+      // Create user object
       const user = {
         id: Date.now().toString(),
         firstName,
@@ -1263,6 +1532,81 @@ export const authController = {
         createdAt: new Date()
       }
       
+      // Store user
+      users.push(user)
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        process.env.JWT_SECRET!,
+        { expiresIn: '7d' }
+      )
+      
+      // Send success response
+      res.status(201).json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+            // Note: password is NOT included in response
+          },
+          token
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **201 status code** - Indicates successful resource creation
+- **Consistent response format** - Matches our API response standards
+- **User data filtering** - Excludes sensitive information (password, internal fields)
+- **Token inclusion** - Provides token for immediate authentication
+
+**Why exclude password from response:**
+- **Security** - Never expose password hashes to clients
+- **Data minimization** - Only send necessary information
+- **API standards** - Common practice in REST APIs
+
+### Step 8: Add login method
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    // ... registration implementation from above
+  },
+
+  async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, password } = req.validatedData.body
+      
+      // Find user by email
+      const user = users.find(u => u.email === email)
+      if (!user) {
+        return next(new AppError('Invalid credentials', 401))
+      }
+      
+      // Validate password
+      const isValidPassword = await bcrypt.compare(password, user.password)
+      if (!isValidPassword) {
+        return next(new AppError('Invalid credentials', 401))
+      }
+      
       // Generate token
       const token = jwt.sign(
         { userId: user.id, email: user.email },
@@ -1270,6 +1614,130 @@ export const authController = {
         { expiresIn: '7d' }
       )
       
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+          },
+          token
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **User lookup** - Finds user by email address
+- **Password comparison** - Uses bcrypt to safely compare passwords
+- **Generic error messages** - Same message for user not found and wrong password
+- **Token generation** - Same JWT process as registration
+
+**Why generic error messages:**
+- **Security** - Prevents email enumeration attacks
+- **Consistency** - Makes it harder for attackers to determine valid emails
+- **User experience** - Clear feedback without revealing system internals
+
+### Step 9: Add logout method
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    // ... registration implementation
+  },
+
+  async login(req: Request, res: Response, next: NextFunction) {
+    // ... login implementation
+  },
+
+  logout(req: Request, res: Response) {
+    // For JWT tokens, logout is typically handled client-side by removing the token
+    // In enhanced implementations, you could:
+    // 1. Maintain a token blacklist
+    // 2. Use shorter token expiry with refresh tokens
+    // 3. Store token revocation in database
+    
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    })
+  }
+}
+```
+
+**What we're adding:**
+- **Simple logout** - Provides endpoint for logout completion
+- **Client-side responsibility** - JWT logout typically handled by removing token from client storage
+- **Enhancement comments** - Documents more advanced logout strategies
+
+**Why simple JWT logout:**
+- **Stateless nature** - JWTs are designed to be stateless
+- **Client responsibility** - Client removes token from storage (localStorage, cookies)
+- **Simplicity** - No server-side session management required
+
+### Completed File: `controllers/authController.ts`
+
+```typescript
+// controllers/authController.ts
+import { Request, Response, NextFunction } from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { AppError } from '../middleware/errorHandler'
+
+// Mock user storage (will be replaced with database in Module 6)
+let users: any[] = []
+
+export const authController = {
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { firstName, lastName, email, password } = req.validatedData.body
+      
+      // Check if user already exists
+      const existingUser = users.find(user => user.email === email)
+      if (existingUser) {
+        return next(new AppError('User already exists with this email', 409))
+      }
+      
+      // Hash password securely
+      const saltRounds = 12
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+      
+      // Create user object
+      const user = {
+        id: Date.now().toString(),
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        createdAt: new Date()
+      }
+      
+      // Store user
+      users.push(user)
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        process.env.JWT_SECRET!,
+        { expiresIn: '7d' }
+      )
+      
+      // Send success response
       res.status(201).json({
         success: true,
         data: {
@@ -1291,8 +1759,11 @@ export const authController = {
     try {
       const { email, password } = req.validatedData.body
       
-      // Find user (mock for now)
-      // This will be replaced with database query
+      // Find user by email
+      const user = users.find(u => u.email === email)
+      if (!user) {
+        return next(new AppError('Invalid credentials', 401))
+      }
       
       // Validate password
       const isValidPassword = await bcrypt.compare(password, user.password)
@@ -1325,8 +1796,6 @@ export const authController = {
   },
 
   logout(req: Request, res: Response) {
-    // For JWT, logout is handled client-side by removing token
-    // Could implement token blacklisting here for enhanced security
     res.json({
       success: true,
       message: 'Logged out successfully'
@@ -1335,7 +1804,105 @@ export const authController = {
 }
 ```
 
-**Rate limiting setup:**
+---
+
+## File 2: Rate Limiting Middleware (`middleware/rateLimiter.ts`)
+
+**Purpose:** This middleware protects authentication endpoints from brute force attacks and abuse by limiting the number of requests from each IP address.
+
+### Step 1: Set up the rate limiter imports and basic structure
+
+```typescript
+// middleware/rateLimiter.ts
+import rateLimit from 'express-rate-limit'
+```
+
+**What we're adding:**
+- **express-rate-limit import** - Industry-standard rate limiting middleware for Express
+
+**Why express-rate-limit:**
+- **Battle-tested** - Used by thousands of production applications
+- **Configurable** - Flexible options for different use cases
+- **Memory efficient** - Built-in cleanup of expired rate limit data
+
+### Step 2: Configure authentication-specific rate limiting
+
+```typescript
+// middleware/rateLimiter.ts
+import rateLimit from 'express-rate-limit'
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  // Additional configuration will be added
+})
+```
+
+**What we're adding:**
+- **Time window** - 15-minute sliding window for rate limiting
+- **Request limit** - Maximum 5 authentication attempts per IP per window
+- **Export name** - Descriptive name indicating this is for authentication endpoints
+
+**Why these limits:**
+- **Security balance** - Allows legitimate retries while blocking brute force attacks
+- **User experience** - Doesn't overly restrict normal usage patterns
+- **Attack prevention** - 5 attempts per 15 minutes makes brute force impractical
+
+### Step 3: Add custom error message and response format
+
+```typescript
+// middleware/rateLimiter.ts
+import rateLimit from 'express-rate-limit'
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many authentication attempts, please try again later'
+  },
+  // Additional options will be added
+})
+```
+
+**What we're adding:**
+- **Custom error message** - User-friendly explanation of the rate limit
+- **Consistent format** - Matches our API response format with success: false
+
+**Why custom messages:**
+- **User clarity** - Explains why the request was blocked
+- **API consistency** - Matches the response format used throughout our API
+- **Security awareness** - Informs users about security measures without revealing details
+
+### Step 4: Configure headers and security options
+
+```typescript
+// middleware/rateLimiter.ts
+import rateLimit from 'express-rate-limit'
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many authentication attempts, please try again later'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+```
+
+**What we're adding:**
+- **Standard headers** - Modern rate limit headers (RateLimit-Limit, RateLimit-Remaining, etc.)
+- **Legacy headers disabled** - Removes older X-RateLimit-* headers for cleaner responses
+
+**Why these header settings:**
+- **Client awareness** - Headers inform clients about rate limit status
+- **Standard compliance** - Uses the newer, standardized header format
+- **Clean responses** - Avoids duplicate headers for the same information
+
+### Step 5: Add additional rate limiters for different use cases
+
 ```typescript
 // middleware/rateLimiter.ts
 import rateLimit from 'express-rate-limit'
@@ -1350,15 +1917,177 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 })
+
+// General API rate limiter (more permissive)
+export const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // limit each IP to 100 requests per minute
+  message: {
+    success: false,
+    error: 'Too many requests, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+// Strict limiter for sensitive operations
+export const strictLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // limit each IP to 3 requests per hour
+  message: {
+    success: false,
+    error: 'Rate limit exceeded for this operation'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+```
+
+**What we're adding:**
+- **General limiter** - Higher limits for regular API endpoints
+- **Strict limiter** - Very restrictive limits for sensitive operations
+- **Flexibility** - Different rate limits for different security needs
+
+**Why multiple limiters:**
+- **Proportional security** - More sensitive operations get stricter limits
+- **User experience** - Regular API usage isn't overly restricted
+- **Attack mitigation** - Different attack vectors require different defenses
+
+### Completed File: `middleware/rateLimiter.ts`
+
+```typescript
+// middleware/rateLimiter.ts
+import rateLimit from 'express-rate-limit'
+
+// Authentication rate limiter - strict limits for login/register
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many authentication attempts, please try again later'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// General API rate limiter - more permissive for regular operations
+export const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // limit each IP to 100 requests per minute
+  message: {
+    success: false,
+    error: 'Too many requests, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+// Strict limiter for sensitive operations (password reset, account changes)
+export const strictLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // limit each IP to 3 requests per hour
+  message: {
+    success: false,
+    error: 'Rate limit exceeded for this operation'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+```
+
+---
+
+## Integration and Environment Setup
+
+### Environment Variables Required
+
+Create a `.env` file in your server directory:
+
+```bash
+# JWT Configuration
+JWT_SECRET=your_super_secret_jwt_key_here_minimum_32_characters
+
+# Server Configuration
+CLIENT_URL=http://localhost:5173
+PORT=3000
+```
+
+**Important security notes:**
+- **JWT_SECRET** - Use a strong, random string (minimum 32 characters)
+- **Never commit .env files** - Add `.env` to your `.gitignore`
+- **Production secrets** - Use environment variable management in production
+
+### Using the Controllers and Rate Limiters in Routes
+
+```typescript
+// routes/auth.ts (updated from Task 4.2)
+import { Router } from 'express'
+import { authController } from '../controllers/authController'
+import { validateRequest } from '../middleware/validation'
+import { registerSchema, loginSchema } from '../schemas/auth'
+import { authLimiter } from '../middleware/rateLimiter'
+
+const router = Router()
+
+router.post('/register',
+  authLimiter,                        // Rate limiting
+  validateRequest(registerSchema),    // Validation
+  authController.register            // Controller
+)
+
+router.post('/login',
+  authLimiter,                       // Rate limiting
+  validateRequest(loginSchema),      // Validation
+  authController.login              // Controller
+)
+
+router.post('/logout',
+  authController.logout             // Simple logout, no rate limiting needed
+)
+
+export default router
+```
+
+### Testing Your Implementation
+
+**Manual testing with curl:**
+
+```bash
+# Test registration
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe", 
+    "email": "john@example.com",
+    "password": "Password123"
+  }'
+
+# Test login
+curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "Password123"
+  }'
+
+# Test rate limiting (run this 6 times quickly)
+for i in {1..6}; do
+  curl -X POST http://localhost:3000/api/v1/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test","password":"test"}'
+done
 ```
 
 **Acceptance criteria:**
-- [ ] Registration endpoint creates users
-- [ ] Login endpoint validates credentials
-- [ ] Passwords properly hashed
-- [ ] JWT tokens generated correctly
-- [ ] Rate limiting implemented
-- [ ] Proper error responses
+- [ ] Registration endpoint creates users with hashed passwords
+- [ ] Login endpoint validates credentials and returns JWT tokens
+- [ ] Passwords are properly hashed using bcrypt
+- [ ] JWT tokens are generated correctly with proper expiration
+- [ ] Rate limiting blocks excessive authentication attempts
+- [ ] Proper error responses for all failure cases
+- [ ] Environment variables configured for JWT secret
 
 ---
 
