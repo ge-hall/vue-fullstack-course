@@ -438,7 +438,226 @@ This approach allows TaskFlow to evolve its API over time while maintaining supp
 - [Express.js Error Handling](https://expressjs.com/en/guide/error-handling.html)
 - [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 
-**Validation middleware to create:**
+**Dependencies to install first:**
+```bash
+npm install zod
+```
+
+## Understanding Express Middleware Function Signatures
+
+Before building our validation and error handling files, it's crucial to understand how Express middleware works and how function signatures enable middleware chaining.
+
+### What is Middleware Chaining?
+
+Middleware chaining is Express's way of processing requests through a series of functions before reaching your final route handler. Think of it as an assembly line where each function can:
+
+1. **Process the request** (validate, authenticate, log, etc.)
+2. **Modify the request/response** (add data, set headers, etc.)  
+3. **End the request** (send an error response)
+4. **Pass control to the next middleware** (continue the chain)
+
+### Standard Middleware Function Signature
+
+```typescript
+function middleware(req: Request, res: Response, next: NextFunction) {
+  // Middleware logic here
+  next() // Call next() to continue to the next middleware
+}
+```
+
+**The three parameters:**
+- **`req` (Request)** - Contains request data (body, headers, params, query, etc.)
+- **`res` (Response)** - Used to send responses back to the client
+- **`next` (NextFunction)** - Function that passes control to the next middleware
+
+### Error Handling Middleware Signature
+
+```typescript
+function errorMiddleware(err: Error, req: Request, res: Response, next: NextFunction) {
+  // Error handling logic here
+}
+```
+
+**Key difference:** Error middleware has **four parameters** with `err` as the first parameter. Express automatically detects this signature and routes errors to these functions.
+
+### How Middleware Chaining Works in Practice
+
+```typescript
+// Example route with multiple middleware
+app.post('/api/v1/auth/register',
+  helmet(),                           // 1. Security headers
+  cors(),                            // 2. CORS handling  
+  validateRequest(registerSchema),   // 3. Request validation
+  rateLimiter,                      // 4. Rate limiting
+  authController.register           // 5. Final route handler
+)
+```
+
+**The execution flow:**
+1. **Request arrives** → `helmet()` adds security headers → calls `next()`
+2. **Control passes** → `cors()` handles CORS → calls `next()`
+3. **Control passes** → `validateRequest()` validates data → calls `next()` OR sends error response
+4. **Control passes** → `rateLimiter` checks rate limits → calls `next()` OR sends error response
+5. **Control passes** → `authController.register` processes the request → sends final response
+
+### The Power of the `next()` Function
+
+The `next()` function is what makes chaining possible:
+
+```typescript
+// Middleware that continues the chain
+function exampleMiddleware(req: Request, res: Response, next: NextFunction) {
+  console.log('Processing request...')
+  // Do some work
+  next() // ✅ Continue to next middleware
+}
+
+// Middleware that ends the chain
+function validationMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (!req.body.email) {
+    return res.status(400).json({ error: 'Email required' }) // ✅ End chain with error
+  }
+  next() // ✅ Continue to next middleware
+}
+
+// Middleware that handles errors
+function errorMiddleware(err: Error, req: Request, res: Response, next: NextFunction) {
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' }) // ✅ End chain with error response
+  // Note: Error middleware typically doesn't call next() unless passing to another error handler
+}
+```
+
+### Higher-Order Functions for Reusable Middleware
+
+```typescript
+// This pattern allows creating configurable middleware
+function validateRequest(schema: z.ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Validation logic using the provided schema
+    // This returns a middleware function with the standard signature
+  }
+}
+
+// Usage: The function call returns a middleware function
+app.post('/register', validateRequest(registerSchema), controller.register)
+app.post('/login', validateRequest(loginSchema), controller.login)
+```
+
+**Why this pattern:**
+- **Reusability** - Same validation logic works with different schemas
+- **Configuration** - Each usage can have different parameters
+- **Type Safety** - TypeScript ensures proper schema types
+
+### Error Propagation in Middleware Chains
+
+```typescript
+function asyncMiddleware(req: Request, res: Response, next: NextFunction) {
+  try {
+    // Some async operation
+    doSomethingAsync()
+    next() // Continue if successful
+  } catch (error) {
+    next(error) // Pass error to error handling middleware
+  }
+}
+```
+
+**Important notes:**
+- **`next()` with no arguments** - Continue to next middleware
+- **`next(error)` with error** - Skip to error handling middleware
+- **No `next()` call** - Chain stops (must send response)
+
+This middleware architecture is what makes Express so powerful and flexible. Now let's build our specific middleware files using these patterns.
+
+---
+
+This task involves creating three interconnected files that work together to provide robust validation and error handling for your TaskFlow API. We'll build each file step-by-step to understand how they integrate.
+
+---
+
+## File 1: Request Validation Middleware (`middleware/validation.ts`)
+
+**Purpose:** This middleware validates incoming requests against predefined schemas and ensures data integrity before it reaches your controllers.
+
+### Step 1: Set up the basic structure and imports
+
+```typescript
+// middleware/validation.ts
+import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+```
+
+**What we're adding:**
+- **Express types** - `Request`, `Response`, `NextFunction` provide TypeScript support for Express middleware
+- **Zod import** - `z` gives us powerful schema validation capabilities
+
+**Why this is needed:**
+- TypeScript ensures we implement the middleware function signature correctly
+- Zod provides runtime type checking that TypeScript alone cannot do
+
+### Step 2: Create the validation function signature
+
+```typescript
+// middleware/validation.ts
+import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+
+export function validateRequest(schema: z.ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Implementation will go here
+  }
+}
+```
+
+**What we're adding:**
+- **Higher-order function** - `validateRequest` returns a middleware function
+- **Schema parameter** - Accepts any Zod schema for flexible validation
+- **Middleware signature** - Returns standard Express middleware function
+
+**Why this pattern:**
+- **Reusability** - Same function works with different schemas
+- **Composition** - Can be easily chained with other middleware
+- **Type safety** - Schema parameter ensures only valid Zod schemas are used
+
+### Step 3: Implement the validation logic
+
+```typescript
+// middleware/validation.ts
+import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+
+export function validateRequest(schema: z.ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validatedData = schema.parse({
+        body: req.body,
+        query: req.query,
+        params: req.params
+      })
+      
+      // Attach validated data to request
+      req.validatedData = validatedData
+      next()
+    } catch (error) {
+      // Error handling will be added next
+    }
+  }
+}
+```
+
+**What we're adding:**
+- **Schema parsing** - Validates request data against the provided schema
+- **Data attachment** - Adds validated data to the request object for controllers
+- **Multiple validation targets** - Checks body, query parameters, and URL parameters
+
+**Why this approach:**
+- **Comprehensive validation** - Covers all types of request data
+- **Data transformation** - Zod can coerce and transform data (e.g., string to number)
+- **Controller convenience** - Controllers get pre-validated data via `req.validatedData`
+
+### Step 4: Add error handling
+
 ```typescript
 // middleware/validation.ts
 import { Request, Response, NextFunction } from 'express'
@@ -473,7 +692,153 @@ export function validateRequest(schema: z.ZodSchema) {
 }
 ```
 
-**Error handling middleware:**
+**What we're adding:**
+- **Zod error detection** - Specifically handles Zod validation errors
+- **User-friendly error format** - Transforms technical errors into readable messages
+- **Field-specific feedback** - Shows which exact fields failed validation
+- **Error forwarding** - Non-validation errors are passed to the global error handler
+
+**Why this error handling:**
+- **Client-friendly responses** - Frontend developers get actionable error information
+- **Debugging support** - Field names and specific error messages help developers fix issues
+- **Separation of concerns** - Only handles validation errors, forwards everything else
+
+### Step 5: Add TypeScript declaration for the request object
+
+You'll also need to extend the Express Request type to include the `validatedData` property:
+
+```typescript
+// types/express.d.ts
+declare global {
+  namespace Express {
+    interface Request {
+      validatedData?: any
+    }
+  }
+}
+
+export {}
+```
+
+**What we're adding:**
+- **Type augmentation** - Extends Express's Request interface
+- **Global declaration** - Makes the property available throughout your app
+
+**Why this is needed:**
+- **TypeScript support** - Prevents TypeScript errors when accessing `req.validatedData`
+- **IDE autocompletion** - Your editor will recognize the property
+
+### Completed File: `middleware/validation.ts`
+
+```typescript
+// middleware/validation.ts
+import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+
+export function validateRequest(schema: z.ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validatedData = schema.parse({
+        body: req.body,
+        query: req.query,
+        params: req.params
+      })
+      
+      // Attach validated data to request
+      req.validatedData = validatedData
+      next()
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation failed',
+          details: error.errors.map(err => ({
+            field: err.path.join('.'),
+            message: err.message
+          }))
+        })
+      }
+      next(error)
+    }
+  }
+}
+```
+
+---
+
+## File 2: Error Handler Middleware (`middleware/errorHandler.ts`)
+
+**Purpose:** This middleware provides centralized error handling for your entire API, ensuring consistent error responses and proper logging.
+
+### Step 1: Create the custom error class
+
+```typescript
+// middleware/errorHandler.ts
+import { Request, Response, NextFunction } from 'express'
+
+export class AppError extends Error {
+  public statusCode: number
+  public isOperational: boolean
+
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode
+    this.isOperational = true
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+```
+
+**What we're adding:**
+- **Custom error class** - Extends JavaScript's built-in Error class
+- **Status code property** - HTTP status code for the error
+- **Operational flag** - Distinguishes expected errors from bugs
+- **Stack trace capture** - Maintains error stack information
+
+**Why this pattern:**
+- **Structured errors** - Consistent error objects throughout your application
+- **HTTP status codes** - Proper HTTP responses for different error types
+- **Debugging support** - Stack traces help identify error sources
+- **Error classification** - Distinguishes between expected errors and unexpected bugs
+
+### Step 2: Set up the error handler function signature
+
+```typescript
+// middleware/errorHandler.ts
+import { Request, Response, NextFunction } from 'express'
+
+export class AppError extends Error {
+  public statusCode: number
+  public isOperational: boolean
+
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode
+    this.isOperational = true
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // Implementation will go here
+}
+```
+
+**What we're adding:**
+- **Error-first parameter** - Express error middleware requires error as first parameter
+- **Standard middleware signature** - Must include all four parameters for Express to recognize it
+
+**Why this signature:**
+- **Express convention** - Error middleware must have exactly this signature
+- **Framework integration** - Express automatically routes errors to this function
+
+### Step 3: Add error processing and logging
+
 ```typescript
 // middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express'
@@ -499,21 +864,67 @@ export function errorHandler(
   let error = { ...err }
   error.message = err.message
 
-  // Log error
+  // Log error for debugging
   console.error(err)
 
-  // Mongoose bad ObjectId
+  // Error transformation will be added next
+}
+```
+
+**What we're adding:**
+- **Error cloning** - Creates a copy to avoid modifying the original
+- **Error logging** - Records all errors for debugging and monitoring
+
+**Why this approach:**
+- **Immutability** - Doesn't modify the original error object
+- **Debugging support** - Logs provide visibility into production issues
+- **Monitoring foundation** - Console logs can be captured by logging services
+
+### Step 4: Add specific error transformations
+
+```typescript
+// middleware/errorHandler.ts
+import { Request, Response, NextFunction } from 'express'
+
+export class AppError extends Error {
+  public statusCode: number
+  public isOperational: boolean
+
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode
+    this.isOperational = true
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  let error = { ...err }
+  error.message = err.message
+
+  // Log error for debugging
+  console.error(err)
+
+  // Handle specific error types
+  
+  // Mongoose bad ObjectId (for future database integration)
   if (err.name === 'CastError') {
     const message = 'Resource not found'
     error = new AppError(message, 404)
   }
 
-  // Duplicate key error
+  // Mongoose duplicate key error
   if (err.code === 11000) {
     const message = 'Duplicate field value entered'
     error = new AppError(message, 400)
   }
 
+  // Send error response
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || 'Server Error'
@@ -521,7 +932,196 @@ export function errorHandler(
 }
 ```
 
-**Schema definitions to create:**
+**What we're adding:**
+- **Specific error handling** - Transforms database and validation errors into user-friendly messages
+- **Status code assignment** - Maps different error types to appropriate HTTP status codes
+- **Consistent response format** - All errors follow the same JSON structure
+
+**Why these transformations:**
+- **User experience** - Technical database errors become readable messages
+- **Security** - Prevents exposing internal system details
+- **API consistency** - All endpoints return errors in the same format
+- **Future-proofing** - Ready for database integration in later modules
+
+### Completed File: `middleware/errorHandler.ts`
+
+```typescript
+// middleware/errorHandler.ts
+import { Request, Response, NextFunction } from 'express'
+
+export class AppError extends Error {
+  public statusCode: number
+  public isOperational: boolean
+
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode
+    this.isOperational = true
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  let error = { ...err }
+  error.message = err.message
+
+  // Log error for debugging
+  console.error(err)
+
+  // Handle specific error types
+  
+  // Mongoose bad ObjectId (for future database integration)
+  if (err.name === 'CastError') {
+    const message = 'Resource not found'
+    error = new AppError(message, 404)
+  }
+
+  // Mongoose duplicate key error
+  if (err.code === 11000) {
+    const message = 'Duplicate field value entered'
+    error = new AppError(message, 400)
+  }
+
+  // Send error response
+  res.status(error.statusCode || 500).json({
+    success: false,
+    error: error.message || 'Server Error'
+  })
+}
+```
+
+---
+
+## File 3: Validation Schemas (`schemas/auth.ts`)
+
+**Purpose:** This file defines the validation rules for authentication endpoints, ensuring data quality and security for user registration and login.
+
+### Step 1: Set up the basic schema structure
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+```
+
+**What we're adding:**
+- **Zod import** - Provides schema definition and validation capabilities
+
+**Why Zod for schemas:**
+- **Type inference** - TypeScript types are automatically generated from schemas
+- **Runtime validation** - Validates actual request data, not just compile-time types
+- **Rich validation** - Built-in validators for emails, strings, numbers, dates, etc.
+
+### Step 2: Create the registration schema foundation
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registerSchema = z.object({
+  body: z.object({
+    // Field definitions will be added step by step
+  })
+})
+```
+
+**What we're adding:**
+- **Schema structure** - Defines that we're validating the request body
+- **Object validation** - Ensures the body is an object with specific properties
+
+**Why this structure:**
+- **Request targeting** - Specifically validates the request body (not query or params)
+- **Type safety** - Creates strongly-typed schema that integrates with middleware
+
+### Step 3: Add name validation fields
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registerSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(2).max(50),
+    lastName: z.string().min(2).max(50),
+    // Email and password will be added next
+  })
+})
+```
+
+**What we're adding:**
+- **String validation** - Ensures names are strings, not numbers or objects
+- **Length constraints** - Names must be 2-50 characters for reasonable user experience
+- **Required fields** - Both firstName and lastName are mandatory
+
+**Why these rules:**
+- **Data quality** - Prevents empty or excessively long names
+- **Database compatibility** - Ensures names fit typical database field sizes
+- **User experience** - Reasonable limits that don't restrict normal use
+
+### Step 4: Add email validation
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registerSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(2).max(50),
+    lastName: z.string().min(2).max(50),
+    email: z.string().email(),
+    // Password will be added next
+  })
+})
+```
+
+**What we're adding:**
+- **Email validation** - Uses Zod's built-in email format validator
+- **Required field** - Email is mandatory for account creation
+
+**Why email validation:**
+- **Format verification** - Ensures email addresses are properly formatted
+- **Security foundation** - Valid emails are crucial for account verification and password resets
+- **User experience** - Immediate feedback on email format errors
+
+### Step 5: Add password validation with security requirements
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registerSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(2).max(50),
+    lastName: z.string().min(2).max(50),
+    email: z.string().email(),
+    password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+  })
+})
+```
+
+**What we're adding:**
+- **Minimum length** - Passwords must be at least 8 characters
+- **Complexity requirements** - Must contain lowercase, uppercase, and numeric characters
+- **Regex validation** - Enforces password complexity rules
+
+**Why these password rules:**
+- **Security** - Complex passwords are harder to crack
+- **Industry standards** - Follows common password policy recommendations
+- **User protection** - Prevents weak passwords that could compromise accounts
+
+**Breaking down the regex:** `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d))`
+- `^` - Start of string
+- `(?=.*[a-z])` - Must contain at least one lowercase letter
+- `(?=.*[A-Z])` - Must contain at least one uppercase letter
+- `(?=.*\d)` - Must contain at least one digit
+- The pattern ensures all three requirements are met
+
+### Step 6: Create the login schema
+
 ```typescript
 // schemas/auth.ts
 import { z } from 'zod'
@@ -543,9 +1143,70 @@ export const loginSchema = z.object({
 })
 ```
 
+**What we're adding:**
+- **Simplified login validation** - Only requires email and password
+- **Relaxed password rules** - Login accepts any non-empty password
+- **Email validation** - Same email format requirements as registration
+
+**Why different validation rules:**
+- **Login flexibility** - Users might have passwords that predate new complexity requirements
+- **User experience** - Don't prevent login for existing users with simpler passwords
+- **Security balance** - Still validate email format and require non-empty password
+
+### Completed File: `schemas/auth.ts`
+
+```typescript
+// schemas/auth.ts
+import { z } from 'zod'
+
+export const registerSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(2).max(50),
+    lastName: z.string().min(2).max(50),
+    email: z.string().email(),
+    password: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+  })
+})
+
+export const loginSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    password: z.string().min(1)
+  })
+})
+```
+
+---
+
+## Integration and Usage
+
+These three files work together to provide comprehensive request validation and error handling:
+
+1. **Schemas define the rules** - What data is expected and what formats are valid
+2. **Validation middleware applies the rules** - Checks incoming requests against schemas
+3. **Error handler provides fallback** - Handles both validation errors and unexpected issues
+
+**How they integrate in routes:**
+```typescript
+// routes/auth.ts (from Task 4.2)
+import { validateRequest } from '../middleware/validation'
+import { registerSchema, loginSchema } from '../schemas/auth'
+
+router.post('/register', 
+  validateRequest(registerSchema),  // Uses all three files together
+  authController.register
+)
+```
+
+**Error flow:**
+1. Request comes in → Validation middleware checks against schema
+2. Invalid data → Validation middleware sends 400 error response
+3. Valid data → Controller processes request
+4. Controller error → Error handler sends appropriate error response
+
 **Acceptance criteria:**
 - [ ] Request validation middleware working
-- [ ] Global error handler implemented
+- [ ] Global error handler implemented  
 - [ ] Consistent error response format
 - [ ] Proper HTTP status codes used
 - [ ] Validation errors user-friendly
