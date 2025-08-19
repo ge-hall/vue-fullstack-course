@@ -2740,7 +2740,338 @@ Once you've set up Swagger and started your server, you can view your API docume
 
 ## Testing Your API Implementation
 
-### Manual Testing Commands
+### Frontend Integration Testing (Recommended)
+
+**Using Module 3 Forms to Test Your API**
+
+Instead of just using curl commands, you can test your API endpoints using the actual frontend forms you built in Module 3. This provides a more realistic testing experience and validates the complete user workflow.
+
+**Prerequisites:**
+- Completed Module 3 (Vue.js forms with validation)
+- Backend API server running on `http://localhost:3000`
+- Frontend development server running on `http://localhost:5173`
+
+### Step 1: Update Frontend API Configuration
+
+In your Vue.js project from Module 3, create or update an API configuration file:
+
+```typescript
+// src/utils/api.ts
+const API_BASE_URL = 'http://localhost:3000/api/v1'
+
+// API client with error handling
+export const apiClient = {
+  async post(endpoint: string, data: any) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'API request failed')
+      }
+      
+      return result
+    } catch (error) {
+      console.error('API Error:', error)
+      throw error
+    }
+  },
+
+  async get(endpoint: string, token?: string) {
+    try {
+      const headers: any = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
+      }
+      
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'GET',
+        headers
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'API request failed')
+      }
+      
+      return result
+    } catch (error) {
+      console.error('API Error:', error)
+      throw error
+    }
+  }
+}
+```
+
+### Step 2: Update Registration Form to Call Your API
+
+Modify your registration form component from Module 3:
+
+```vue
+<!-- src/components/RegistrationForm.vue -->
+<script setup lang="ts">
+import { ref } from 'vue'
+import { apiClient } from '@/utils/api'
+
+// ... existing form validation code ...
+
+const isSubmitting = ref(false)
+const submitError = ref('')
+const submitSuccess = ref('')
+
+const handleSubmit = async () => {
+  if (!isFormValid.value || isSubmitting.value) return
+  
+  isSubmitting.value = true
+  submitError.value = ''
+  submitSuccess.value = ''
+  
+  try {
+    const response = await apiClient.post('/auth/register', {
+      firstName: formData.value.firstName,
+      lastName: formData.value.lastName,
+      email: formData.value.email,
+      password: formData.value.password
+    })
+    
+    console.log('Registration successful:', response)
+    submitSuccess.value = 'Registration successful! You can now log in.'
+    
+    // Store token for future requests
+    localStorage.setItem('authToken', response.data.token)
+    
+    // Reset form
+    resetForm()
+    
+  } catch (error: any) {
+    submitError.value = error.message || 'Registration failed'
+    console.error('Registration error:', error)
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<template>
+  <!-- ... existing form template ... -->
+  
+  <!-- Add success/error messages -->
+  <div v-if="submitSuccess" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+    {{ submitSuccess }}
+  </div>
+  
+  <div v-if="submitError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    {{ submitError }}
+  </div>
+  
+  <!-- Update submit button -->
+  <button 
+    @click="handleSubmit"
+    :disabled="!isFormValid || isSubmitting"
+    :class="{
+      'opacity-50 cursor-not-allowed': !isFormValid || isSubmitting,
+      'bg-blue-600 hover:bg-blue-700': isFormValid && !isSubmitting
+    }"
+    class="w-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+  >
+    {{ isSubmitting ? 'Registering...' : 'Register' }}
+  </button>
+</template>
+```
+
+### Step 3: Update Login Form to Call Your API
+
+Modify your login form component:
+
+```vue
+<!-- src/components/LoginForm.vue -->
+<script setup lang="ts">
+import { ref } from 'vue'
+import { apiClient } from '@/utils/api'
+
+// ... existing form validation code ...
+
+const isSubmitting = ref(false)
+const submitError = ref('')
+const submitSuccess = ref('')
+
+const handleSubmit = async () => {
+  if (!isFormValid.value || isSubmitting.value) return
+  
+  isSubmitting.value = true
+  submitError.value = ''
+  submitSuccess.value = ''
+  
+  try {
+    const response = await apiClient.post('/auth/login', {
+      email: formData.value.email,
+      password: formData.value.password
+    })
+    
+    console.log('Login successful:', response)
+    submitSuccess.value = `Welcome back, ${response.data.user.firstName}!`
+    
+    // Store token for future requests
+    localStorage.setItem('authToken', response.data.token)
+    localStorage.setItem('userData', JSON.stringify(response.data.user))
+    
+  } catch (error: any) {
+    submitError.value = error.message || 'Login failed'
+    console.error('Login error:', error)
+  } finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<!-- Similar template updates as registration form -->
+```
+
+### Step 4: Test API Rate Limiting
+
+Create a simple test component to verify rate limiting:
+
+```vue
+<!-- src/components/RateLimitTest.vue -->
+<template>
+  <div class="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-bold mb-4">Rate Limit Test</h2>
+    <p class="mb-4 text-sm text-gray-600">
+      Click the button rapidly to test the rate limiting (max 5 requests per 15 minutes)
+    </p>
+    
+    <button 
+      @click="testRateLimit"
+      :disabled="isLoading"
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
+    >
+      {{ isLoading ? 'Testing...' : 'Test Rate Limit' }}
+    </button>
+    
+    <div class="space-y-2">
+      <div v-for="(result, index) in results" :key="index" 
+           :class="{
+             'text-red-600': result.includes('rate limit') || result.includes('error'),
+             'text-green-600': result.includes('success'),
+             'text-blue-600': !result.includes('error') && !result.includes('success')
+           }"
+           class="text-sm">
+        {{ index + 1 }}. {{ result }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { apiClient } from '@/utils/api'
+
+const isLoading = ref(false)
+const results = ref<string[]>([])
+
+const testRateLimit = async () => {
+  isLoading.value = true
+  results.value = []
+  
+  // Make 6 rapid requests to trigger rate limiting
+  for (let i = 0; i < 6; i++) {
+    try {
+      await apiClient.post('/auth/login', {
+        email: 'test@invalid.com',
+        password: 'invalid'
+      })
+      results.value.push(`Request ${i + 1}: Unexpected success`)
+    } catch (error: any) {
+      if (error.message.includes('rate limit') || error.message.includes('Too many')) {
+        results.value.push(`Request ${i + 1}: Rate limited ✓`)
+      } else {
+        results.value.push(`Request ${i + 1}: ${error.message}`)
+      }
+    }
+    
+    // Small delay to show progression
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  
+  isLoading.value = false
+}
+</script>
+```
+
+### Step 5: Frontend Testing Workflow
+
+**Complete testing process using your Module 3 frontend:**
+
+1. **Start both servers:**
+   ```bash
+   # Terminal 1 - Backend (Module 4)
+   cd server/
+   npm run dev
+   
+   # Terminal 2 - Frontend (Module 3)
+   cd client/  # or your Vue project directory
+   npm run dev
+   ```
+
+2. **Test Registration Flow:**
+   - Open `http://localhost:5173` (your Vue frontend)
+   - Navigate to registration form
+   - Fill out the form with valid data
+   - Submit and verify success message
+   - Check browser Network tab to see API calls
+   - Verify JWT token is stored in localStorage
+
+3. **Test Login Flow:**
+   - Use the same credentials from registration
+   - Verify login success and user data storage
+   - Test invalid credentials to see error handling
+
+4. **Test Validation:**
+   - Try submitting forms with invalid data
+   - Verify frontend validation works
+   - Submit forms that pass frontend but fail backend validation
+   - Confirm error messages display properly
+
+5. **Test Rate Limiting:**
+   - Use the RateLimitTest component
+   - Verify rate limiting kicks in after 5 attempts
+   - Wait 15 minutes and test that limit resets
+
+### Benefits of Frontend Testing
+
+**Advantages over curl testing:**
+- **Real user experience** - Test actual user workflows
+- **Visual feedback** - See errors and success states in the UI
+- **Form validation integration** - Test frontend and backend validation together
+- **Token management** - Test JWT storage and usage
+- **Error handling** - Verify error messages display correctly to users
+- **Rate limiting visibility** - See how rate limiting affects real users
+
+**What to verify:**
+- [ ] Registration form successfully creates users
+- [ ] Login form authenticates and stores tokens
+- [ ] Form validation works on both frontend and backend
+- [ ] Error messages are user-friendly and actionable
+- [ ] Rate limiting prevents abuse while allowing normal usage
+- [ ] Success states provide appropriate feedback
+- [ ] Network requests match API documentation
+
+This approach gives you confidence that your APIs work correctly with real frontend applications, not just isolated curl commands.
+
+---
+
+### Manual Testing Commands (Alternative Method)
 
 **Create a test file:** `test-api.sh`
 
