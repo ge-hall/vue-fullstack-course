@@ -45,6 +45,119 @@ The mockups show user profile pages, dashboard loading states, and error handlin
 ## Overview
 This module creates the server-side foundation for TaskFlow using Express.js. You'll build endpoints that support user authentication and establish patterns that will scale to handle projects, tasks, and team collaboration.
 
+## TypeScript Setup for Backend Development
+
+**Why TypeScript for Backend?**
+This module introduces TypeScript for server-side development. TypeScript provides:
+- **Type safety** - Catch errors at compile time instead of runtime
+- **Better IDE support** - Auto-completion, refactoring, and error detection
+- **Code documentation** - Types serve as inline documentation
+- **Easier debugging** - More informative error messages and stack traces
+- **Team collaboration** - Shared understanding of data structures and interfaces
+
+### Prerequisites and Environment Setup
+
+**Required tools:**
+- Node.js 16+ (check with `node --version`)
+- npm or yarn package manager
+- TypeScript knowledge (interfaces, types, async/await)
+
+**Global TypeScript installation (recommended):**
+```bash
+npm install -g typescript
+```
+
+**Verify TypeScript installation:**
+```bash
+tsc --version
+```
+
+### TypeScript Project Configuration
+
+**Essential TypeScript configuration file (`tsconfig.json`):**
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ]
+}
+```
+
+**Key configuration explanations:**
+- **target: "ES2020"** - Compiles to modern JavaScript with async/await support
+- **strict: true** - Enables all strict type checking options
+- **outDir: "./dist"** - Compiled JavaScript output directory
+- **rootDir: "./src"** - TypeScript source files directory
+- **sourceMap: true** - Generates source maps for debugging
+
+**Project structure to create:**
+```
+server/
+├── src/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── schemas/
+│   ├── types/
+│   ├── utils/
+│   ├── app.ts
+│   └── server.ts
+├── dist/                 # Compiled JavaScript (auto-generated)
+├── tsconfig.json
+├── package.json
+└── .env
+```
+
+**Development dependencies to install:**
+```bash
+# TypeScript core and Node.js types
+npm install -D typescript @types/node
+
+# Development tools
+npm install -D nodemon ts-node concurrently
+
+# Express.js and related types
+npm install -D @types/express @types/cors
+
+# Additional type definitions (install as needed)
+npm install -D @types/bcrypt @types/jsonwebtoken @types/swagger-jsdoc @types/swagger-ui-express
+```
+
+**Why these development dependencies:**
+- **typescript** - TypeScript compiler
+- **@types/node** - Type definitions for Node.js APIs
+- **ts-node** - Run TypeScript directly without compilation step
+- **nodemon** - Auto-restart server on file changes
+- **@types/express** - Type definitions for Express.js
+
+This setup ensures you have a robust TypeScript environment that provides type safety, excellent developer experience, and production-ready compilation for your TaskFlow API.
+
 ## Tasks
 
 ### Task 4.1: Express.js Project Setup
@@ -2097,7 +2210,7 @@ done
 **What you need to accomplish:**
 - Implement user profile endpoints
 - Create basic project/task endpoints (mock data)
-- Set up API documentation
+- Set up API documentation with Swagger
 - Add request/response logging
 
 **Documentation to consult:**
@@ -2105,17 +2218,62 @@ done
 - [Swagger/OpenAPI with Express](https://swagger.io/docs/specification/about/)
 - [API Documentation Best Practices](https://swagger.io/blog/api-documentation/api-documentation-best-practices/)
 
-**User endpoints to implement:**
+**Dependencies to install:**
+```bash
+npm install swagger-jsdoc swagger-ui-express
+npm install -D @types/swagger-jsdoc @types/swagger-ui-express
+```
+
+## Understanding CRUD Operations
+
+**CRUD** stands for the four basic operations you can perform on data:
+
+- **C**reate - Add new records (POST requests)
+- **R**ead - Retrieve existing records (GET requests)  
+- **U**pdate - Modify existing records (PUT/PATCH requests)
+- **D**elete - Remove records (DELETE requests)
+
+These operations form the foundation of most APIs and correspond directly to HTTP methods. In TaskFlow, we'll implement CRUD operations for users, projects, and tasks.
+
+**CRUD Examples:**
+- **Create User Profile** - POST /api/v1/users (register creates, this updates)
+- **Read User Profile** - GET /api/v1/users/profile
+- **Update User Profile** - PUT /api/v1/users/profile
+- **Delete User Account** - DELETE /api/v1/users/profile
+
+---
+
+## User Controller Implementation
+
+Create a `controllers/userController.ts` file to handle user profile operations. This controller provides CRUD functionality for user data management after authentication.
+
+**Purpose of the User Controller:**
+The user controller manages user profile data and account settings. Unlike the auth controller which handles login/registration, this controller focuses on profile management for authenticated users.
+
 ```typescript
 // controllers/userController.ts
+import { Request, Response, NextFunction } from 'express'
+import { AppError } from '../middleware/errorHandler'
+
+// Import the same mock users array from authController for consistency
+// In Module 6, this will be replaced with actual database operations
+import { users } from './authController'
+
 export const userController = {
+  /**
+   * Get current user's profile information
+   * Requires authentication (user must be logged in)
+   */
   async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      // Get user from auth middleware
-      const userId = req.user.id
+      // Get user ID from authentication middleware (will be implemented in advanced tasks)
+      const userId = req.user?.id || req.headers['user-id'] as string // Temporary fallback
       
-      // Fetch user data (mock for now)
-      const user = await getUserById(userId)
+      // Find user in mock storage
+      const user = users.find(u => u.id === userId)
+      if (!user) {
+        return next(new AppError('User not found', 404))
+      }
       
       res.json({
         success: true,
@@ -2126,6 +2284,7 @@ export const userController = {
             lastName: user.lastName,
             email: user.email,
             createdAt: user.createdAt
+            // Note: password is never included in responses
           }
         }
       })
@@ -2134,17 +2293,67 @@ export const userController = {
     }
   },
 
+  /**
+   * Update current user's profile information
+   * Allows users to modify their firstName, lastName, etc.
+   */
   async updateProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.user.id
+      const userId = req.user?.id || req.headers['user-id'] as string
       const updates = req.validatedData.body
       
-      // Update user (mock for now)
-      const updatedUser = await updateUser(userId, updates)
+      // Find and update user in mock storage
+      const userIndex = users.findIndex(u => u.id === userId)
+      if (userIndex === -1) {
+        return next(new AppError('User not found', 404))
+      }
+      
+      // Update user data (preserving password and other sensitive fields)
+      users[userIndex] = {
+        ...users[userIndex],
+        ...updates,
+        // Prevent updating sensitive fields through this endpoint
+        id: users[userIndex].id,
+        password: users[userIndex].password,
+        createdAt: users[userIndex].createdAt
+      }
       
       res.json({
         success: true,
-        data: { user: updatedUser }
+        data: {
+          user: {
+            id: users[userIndex].id,
+            firstName: users[userIndex].firstName,
+            lastName: users[userIndex].lastName,
+            email: users[userIndex].email,
+            createdAt: users[userIndex].createdAt
+          }
+        }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  /**
+   * Delete current user's account
+   * Permanently removes user from the system
+   */
+  async deleteAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id || req.headers['user-id'] as string
+      
+      // Find and remove user from mock storage
+      const userIndex = users.findIndex(u => u.id === userId)
+      if (userIndex === -1) {
+        return next(new AppError('User not found', 404))
+      }
+      
+      users.splice(userIndex, 1)
+      
+      res.json({
+        success: true,
+        message: 'Account deleted successfully'
       })
     } catch (error) {
       next(error)
@@ -2153,7 +2362,63 @@ export const userController = {
 }
 ```
 
-**API documentation setup:**
+---
+
+## API Documentation with Swagger
+
+**What is Swagger?**
+Swagger (now called OpenAPI) is a specification for describing REST APIs. It provides:
+- **Interactive documentation** - Test endpoints directly from the browser
+- **Auto-generated schemas** - API structure documented automatically
+- **Client generation** - Generate API clients for different languages
+- **Validation** - Ensure API responses match documented schemas
+
+**Why use Swagger?**
+- **Developer experience** - Easy to understand and test APIs
+- **Team collaboration** - Shared understanding of API structure
+- **Quality assurance** - Documentation stays in sync with code
+- **Client integration** - Other developers can easily integrate with your API
+
+### Step-by-Step Swagger Setup
+
+**Step 1: Install Swagger dependencies**
+```bash
+npm install swagger-jsdoc swagger-ui-express
+npm install -D @types/swagger-jsdoc @types/swagger-ui-express
+```
+
+**Step 2: Create the basic Swagger configuration**
+
+Create `docs/swagger.ts`:
+
+```typescript
+// docs/swagger.ts
+// Import Swagger tools for API documentation generation
+import swaggerJsdoc from 'swagger-jsdoc'  // Parses JSDoc comments into OpenAPI spec
+import swaggerUi from 'swagger-ui-express' // Serves interactive API documentation UI
+
+// Configuration object for swagger-jsdoc
+const options = {
+  definition: {
+    openapi: '3.0.0',  // OpenAPI specification version (latest stable)
+    info: {
+      title: 'TaskFlow API',                                    // API name displayed in docs
+      version: '1.0.0',                                        // API version for tracking changes
+      description: 'A comprehensive task management application API'  // Brief API description
+    }
+  },
+  apis: [] // Array of file paths to scan for @openapi comments (populated in next step)
+}
+
+// Generate OpenAPI specification from configuration and JSDoc comments
+const specs = swaggerJsdoc(options)
+
+// Export both the generated specs and the UI middleware
+export { specs, swaggerUi }
+```
+
+**Step 3: Add server configuration and security schemes**
+
 ```typescript
 // docs/swagger.ts
 import swaggerJsdoc from 'swagger-jsdoc'
@@ -2163,9 +2428,58 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Task Manager API',
+      title: 'TaskFlow API',
       version: '1.0.0',
-      description: 'A task management application API'
+      description: 'A comprehensive task management application API',
+      contact: {                          // Support contact information
+        name: 'TaskFlow Support',         // Displayed in API docs
+        email: 'support@taskflow.com'     // Contact email for API questions
+      }
+    },
+    servers: [                            // List of available API servers
+      {
+        url: process.env.API_URL || 'http://localhost:3000/api/v1',  // Base URL for API requests
+        description: 'Development server' // Human-readable server description
+      }
+    ],
+    components: {                         // Reusable components for API documentation
+      securitySchemes: {                  // Authentication schemes available
+        bearerAuth: {                     // Name for JWT authentication scheme
+          type: 'http',                   // HTTP authentication type
+          scheme: 'bearer',               // Bearer token authentication
+          bearerFormat: 'JWT',            // Specifies JWT token format
+          description: 'Enter JWT token obtained from login endpoint'  // User instructions
+        }
+      }
+    }
+  },
+  apis: [] // File paths to scan for documentation comments (populated in next step)
+}
+
+// Generate the OpenAPI specification
+const specs = swaggerJsdoc(options)
+
+export { specs, swaggerUi }
+```
+
+**Step 4: Configure API file scanning**
+
+```typescript
+// docs/swagger.ts
+import swaggerJsdoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'TaskFlow API',
+      version: '1.0.0',
+      description: 'A comprehensive task management application API',
+      contact: {
+        name: 'TaskFlow Support',
+        email: 'support@taskflow.com'
+      }
     },
     servers: [
       {
@@ -2178,26 +2492,61 @@ const options = {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
+          bearerFormat: 'JWT',
+          description: 'Enter JWT token obtained from login endpoint'
         }
       }
     }
   },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts']
+  // Configure swagger-jsdoc to scan these file patterns for @openapi comments
+  apis: [
+    './src/routes/*.ts',      // Scan all TypeScript files in routes directory for endpoint documentation
+    './src/controllers/*.ts'  // Scan all TypeScript files in controllers directory for additional docs
+  ]
 }
 
+// Parse the configuration and file comments to generate OpenAPI specification
 const specs = swaggerJsdoc(options)
 
 export { specs, swaggerUi }
 ```
 
-**Route documentation example:**
+**Step 5: Add Swagger route to your main app**
+
+In your `app.ts` file, add the Swagger documentation route:
+
 ```typescript
+// app.ts
+// Import the generated OpenAPI specs and Swagger UI middleware
+import { specs, swaggerUi } from './docs/swagger'
+
+// ... other middleware (cors, helmet, etc.)
+
+// Configure and serve interactive API documentation
+app.use('/api-docs',                    // URL path where docs will be accessible
+  swaggerUi.serve,                      // Serve static Swagger UI assets (CSS, JS, etc.)
+  swaggerUi.setup(specs, {              // Setup interactive documentation with our API specs
+    explorer: true,                     // Enable "Try it out" functionality for testing endpoints
+    customCss: '.swagger-ui .topbar { display: none }',  // Hide Swagger's default header
+    customSiteTitle: 'TaskFlow API Documentation'        // Browser tab title
+  })
+)
+
+// ... your API routes (should come AFTER documentation route)
+```
+
+**Step 6: Add API documentation comments to your routes**
+
+Add documentation comments above your route definitions:
+
+```typescript
+// routes/auth.ts
 /**
  * @openapi
  * /auth/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Register a new user account
+ *     description: Creates a new user account with email and password
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -2213,28 +2562,350 @@ export { specs, swaggerUi }
  *             properties:
  *               firstName:
  *                 type: string
+ *                 example: "John"
+ *                 description: User's first name
  *               lastName:
  *                 type: string
+ *                 example: "Doe"
+ *                 description: User's last name
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: "john@example.com"
+ *                 description: Valid email address
  *               password:
  *                 type: string
  *                 minLength: 8
+ *                 example: "Password123"
+ *                 description: Password with at least 8 characters, including uppercase, lowercase, and number
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         firstName:
+ *                           type: string
+ *                         lastName:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                     token:
+ *                       type: string
+ *                       description: JWT authentication token
  *       400:
  *         description: Validation error
+ *       409:
+ *         description: User already exists
  */
+router.post('/register',
+  authLimiter,
+  validateRequest(registerSchema),
+  authController.register
+)
 ```
 
+### Completed Swagger Configuration File
+
+```typescript
+// docs/swagger.ts
+import swaggerJsdoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+
+const options = {
+  definition: {
+    openapi: '3.0.0',                   // OpenAPI specification version
+    info: {
+      title: 'TaskFlow API',            // Main API title shown in documentation
+      version: '1.0.0',                 // API version for client compatibility tracking
+      description: 'A comprehensive task management application API built with Express.js and TypeScript',
+      contact: {                        // Support contact information
+        name: 'TaskFlow Support',
+        email: 'support@taskflow.com'
+      },
+      license: {                        // API license information
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT'
+      }
+    },
+    servers: [                          // Available API server environments
+      {
+        url: process.env.API_URL || 'http://localhost:3000/api/v1',  // Dynamic server URL
+        description: 'Development server'
+      }
+    ],
+    components: {                       // Reusable OpenAPI components
+      securitySchemes: {                // Authentication methods
+        bearerAuth: {
+          type: 'http',                 // HTTP authentication
+          scheme: 'bearer',             // Bearer token scheme
+          bearerFormat: 'JWT',          // JWT token format
+          description: 'Enter JWT token obtained from login endpoint'
+        }
+      },
+      responses: {                      // Common response schemas for reuse
+        UnauthorizedError: {            // 401 Unauthorized response schema
+          description: 'Authentication information is missing or invalid',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: false },
+                  error: { type: 'string', example: 'Unauthorized' }
+                }
+              }
+            }
+          }
+        },
+        ValidationError: {              // 400 Validation Error response schema
+          description: 'Request validation failed',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: false },
+                  error: { type: 'string', example: 'Validation failed' },
+                  details: {            // Array of specific field validation errors
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        field: { type: 'string' },    // Field name that failed validation
+                        message: { type: 'string' }   // Human-readable error message
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  // File paths to scan for @openapi documentation comments
+  apis: [
+    './src/routes/*.ts',      // Route definitions with endpoint documentation
+    './src/controllers/*.ts'  // Controller files with additional schema documentation
+  ]
+}
+
+// Generate complete OpenAPI specification from config and comments
+const specs = swaggerJsdoc(options)
+
+export { specs, swaggerUi }
+```
+
+---
+
+## Viewing Your API Documentation
+
+Once you've set up Swagger and started your server, you can view your API documentation by visiting:
+
+**http://localhost:3000/api-docs**
+
+**What you'll see on the documentation page:**
+
+1. **API Overview** - Title, description, version, and contact information
+2. **Server Information** - Available servers and base URLs
+3. **Authentication** - JWT bearer token configuration with "Authorize" button
+4. **Endpoint Groups** - Organized by tags (Authentication, Users, etc.)
+5. **Interactive Testing** - Each endpoint has a "Try it out" button
+6. **Request/Response Examples** - Sample data for testing
+7. **Schema Definitions** - Data models and validation rules
+
+**How to test endpoints:**
+1. Click "Authorize" and enter your JWT token (from login response)
+2. Navigate to any endpoint and click "Try it out"
+3. Fill in required parameters and request body
+4. Click "Execute" to make a real API call
+5. View the response directly in the documentation
+
+---
+
+## Testing Your API Implementation
+
+### Manual Testing Commands
+
+**Create a test file:** `test-api.sh`
+
+```bash
+#!/bin/bash
+
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+BASE_URL="http://localhost:3000/api/v1"
+
+echo -e "${BLUE}=== TaskFlow API Testing Script ===${NC}\n"
+
+# Test 1: Health Check
+echo -e "${BLUE}1. Testing Health Check${NC}"
+curl -s "$BASE_URL/health" | jq .
+echo -e "\n"
+
+# Test 2: Register User
+echo -e "${BLUE}2. Testing User Registration${NC}"
+REGISTER_RESPONSE=$(curl -s -X POST "$BASE_URL/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "test@example.com",
+    "password": "Password123"
+  }')
+
+echo "$REGISTER_RESPONSE" | jq .
+
+# Extract token for subsequent requests
+TOKEN=$(echo "$REGISTER_RESPONSE" | jq -r '.data.token // empty')
+echo -e "\n"
+
+# Test 3: Login
+echo -e "${BLUE}3. Testing User Login${NC}"
+LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "Password123"
+  }')
+
+echo "$LOGIN_RESPONSE" | jq .
+
+# Update token if login was successful
+NEW_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.data.token // empty')
+if [ ! -z "$NEW_TOKEN" ]; then
+  TOKEN="$NEW_TOKEN"
+fi
+echo -e "\n"
+
+# Test 4: Get User Profile (requires authentication)
+if [ ! -z "$TOKEN" ]; then
+  echo -e "${BLUE}4. Testing Get User Profile${NC}"
+  curl -s -X GET "$BASE_URL/users/profile" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "user-id: $(echo "$REGISTER_RESPONSE" | jq -r '.data.user.id')" | jq .
+  echo -e "\n"
+
+  # Test 5: Update User Profile
+  echo -e "${BLUE}5. Testing Update User Profile${NC}"
+  curl -s -X PUT "$BASE_URL/users/profile" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "user-id: $(echo "$REGISTER_RESPONSE" | jq -r '.data.user.id')" \
+    -d '{
+      "firstName": "Updated",
+      "lastName": "Name"
+    }' | jq .
+  echo -e "\n"
+fi
+
+# Test 6: Rate Limiting
+echo -e "${BLUE}6. Testing Rate Limiting (5 rapid requests)${NC}"
+for i in {1..6}; do
+  echo "Request $i:"
+  curl -s -X POST "$BASE_URL/auth/login" \
+    -H "Content-Type: application/json" \
+    -d '{"email":"invalid","password":"invalid"}' | jq -r '.error // .message'
+done
+echo -e "\n"
+
+# Test 7: Invalid Requests
+echo -e "${BLUE}7. Testing Validation Errors${NC}"
+curl -s -X POST "$BASE_URL/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "A",
+    "email": "invalid-email",
+    "password": "weak"
+  }' | jq .
+
+echo -e "\n${GREEN}Testing completed!${NC}"
+echo -e "${BLUE}View API documentation at: http://localhost:3000/api-docs${NC}"
+```
+
+**Make the script executable and run it:**
+```bash
+chmod +x test-api.sh
+./test-api.sh
+```
+
+### Quick Individual Tests
+
+**Test registration:**
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "password": "Password123"
+  }' | jq .
+```
+
+**Test login and save token:**
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "Password123"
+  }' | jq -r '.data.token')
+
+echo "Token: $TOKEN"
+```
+
+**Test protected endpoint:**
+```bash
+curl -X GET http://localhost:3000/api/v1/users/profile \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "user-id: YOUR_USER_ID" | jq .
+```
+
+### Development Testing Workflow
+
+**For each new endpoint you create:**
+
+1. **Manual curl test** - Verify basic functionality
+2. **Swagger documentation test** - Use the interactive docs
+3. **Error case testing** - Test invalid inputs and edge cases
+4. **Rate limiting verification** - Ensure limits work properly
+5. **Authentication testing** - Verify protected endpoints require auth
+
+**Testing checklist for each task:**
+- [ ] Endpoint responds with correct HTTP status codes
+- [ ] Response format matches API standards
+- [ ] Validation errors are user-friendly
+- [ ] Rate limiting works as expected
+- [ ] Authentication is enforced where required
+- [ ] Swagger documentation is accurate and testable
+
 **Acceptance criteria:**
-- [ ] User CRUD endpoints implemented
-- [ ] Mock project/task endpoints created
-- [ ] API documentation accessible
-- [ ] Request/response logging working
-- [ ] Consistent response format
+- [ ] User CRUD endpoints implemented and tested
+- [ ] Swagger documentation accessible at /api-docs
+- [ ] Interactive API testing works in Swagger UI
+- [ ] Manual testing script passes all tests
+- [ ] Rate limiting and validation working correctly
+- [ ] Consistent error response format across all endpoints
 
 ## Challenge Extensions
 
